@@ -10,6 +10,8 @@ artifacts/
 installer/wizard-*.bmp
 
 # Local-only
+# Notion's icons are theirs, not ours to publish (see Services\IconPack.cs)
+icons/notion/
 CLAUDE.local.md
 .claude/
 *.log

@@ -959,6 +959,47 @@ public partial class MainWindow : Window
         _ => "",
     };
 
+    /// <summary>The page's icon in the local Notion pack (<see cref="IconPack"/>); the glyph is the fallback.</summary>
+    private static string PageIconName(ExpandedPage page) => page switch
+    {
+        ExpandedPage.Notifications => "bell",
+        ExpandedPage.Calendar => "calendar",
+        ExpandedPage.Todo => "checkmark-list",
+        ExpandedPage.Notes => "pencil",
+        ExpandedPage.Shelf => "tray",
+        ExpandedPage.Weather => "weather-cloud-sun",
+        ExpandedPage.Apps => "grid-square-2x2",
+        ExpandedPage.Wallpaper => "photo-landscape",
+        _ => "home",
+    };
+
+    /// <summary>A tab's icon: the pack's shape at 14 px when present, else the Segoe glyph.</summary>
+    private FrameworkElement PageIcon(ExpandedPage page, bool selected)
+    {
+        var brush = selected ? "Ink" : "Secondary";
+        if (IconPack.Get(PageIconName(page)) is { } geometry)
+        {
+            var icon = new Path
+            {
+                Data = geometry,
+                Width = IconPack.Grid,
+                Height = IconPack.Grid,
+                LayoutTransform = new ScaleTransform(14 / IconPack.Grid, 14 / IconPack.Grid),
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            icon.SetResourceReference(Shape.FillProperty, brush);
+            return icon;
+        }
+        var glyph = new TextBlock
+        {
+            Style = (Style)FindResource("Glyph"),
+            Text = PageGlyph(page),
+            FontSize = 13,
+        };
+        glyph.SetResourceReference(TextBlock.ForegroundProperty, brush);
+        return glyph;
+    }
+
     private static string PageTitle(ExpandedPage page) => page switch
     {
         ExpandedPage.Notifications => "Notifications",
@@ -996,7 +1037,6 @@ public partial class MainWindow : Window
         // Dots sit centered; the nav row leaves room on the right for the gear, so balance it on the left.
         PageTabs.HorizontalAlignment = dots ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         PageTabs.Margin = dots ? new Thickness(34, 0, 0, 0) : new Thickness(-8, 0, 0, 0);
-        var secondary = (Brush)FindResource("Secondary");
         foreach (var page in pages)
         {
             var selected = page == _page;
@@ -1018,13 +1058,7 @@ public partial class MainWindow : Window
                         Orientation = Orientation.Horizontal,
                         Children =
                         {
-                            new TextBlock
-                            {
-                                Style = (Style)FindResource("Glyph"),
-                                Text = PageGlyph(page),
-                                FontSize = 13,
-                                Foreground = selected ? Ink : secondary,
-                            },
+                            PageIcon(page, selected),
                             new TextBlock
                             {
                                 Text = PageTitle(page),

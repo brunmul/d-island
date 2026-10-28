@@ -50,6 +50,11 @@
     <None Include="Identity\**" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <!-- Optional local icon pack (Notion's page icons, not redistributable): git-ignored, copied when present. -->
+  <ItemGroup>
+    <None Include="icons\notion\*.svg" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <!-- Licence, privacy statement and third-party notices travel with every build (Settings > About links them). -->
   <ItemGroup>
     <None Include="LICENSE.txt;NOTICE.txt;PRIVACY.txt;THIRD-PARTY-NOTICES.txt" CopyToOutputDirectory="PreserveNewest" />
