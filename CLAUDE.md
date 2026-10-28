@@ -24,6 +24,13 @@ license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What
   them with `DynamicResource`, never `StaticResource`**: a StaticResource reference froze the brush and
   the element kept the old color. New hard-coded colors go through the palette. Settings > Theme;
   `DISLAND_THEME=<name>` wears a theme for one run (Debug).
+- **Page tab icons** (`Services/IconPack.cs`): the tabs draw Notion's page icons (filled, 20-unit
+  grid) from `icons\notion\<name>.svg` next to the exe, filled with `Ink` / `Secondary` through
+  `SetResourceReference`; `PageIconName` maps pages to files, and `UsePackIcons` swaps fixed XAML
+  glyphs (the Settings gear). The icons are Notion's (taken from its
+  page icon picker, see the "Bibliothèque d'icônes" artifact), so **they're never committed**:
+  `icons/notion/` is git-ignored and the csproj copies it only when present. A missing or broken
+  file falls back to the Segoe glyph (`PageGlyph`).
 - **Notification click** (`Services/AppActivator.cs`): a click on a notification alert (and a row on
   the Notifications page) brings the app forward: window by AppUserModelID property, then
   `IApplicationActivationManager` for packaged ids, then process name, then `shell:AppsFolder`.

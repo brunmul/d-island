@@ -83,6 +83,12 @@ redistribution, y compris commerciale, à ces conditions :
   `Secondary`, `Fill`, `Separator`… en `DynamicResource`) et prend le rendu natif Windows 11 :
   fond Mica et barre de titre en mode sombre ou clair selon la clarté de l'encre du thème
   (`Services/WindowBackdrop.cs`, Windows 11 22H2+ ; sinon fond uni `Surface`).
+- **Icônes des onglets (28/10)** : Home, Notifications, Calendar, To-Do, Notes, Shelf, Weather, Apps
+  et Wallpaper prennent les icônes pleines du pack Notion · pages (home, bell, calendar,
+  checkmark-list, pencil, tray, weather-cloud-sun, grid-square-2x2, photo-landscape), 14 px, en
+  `Ink` (onglet actif) ou `Secondary` ; l'engrenage des Réglages prend `gear`. `Services/IconPack.cs` lit `icons\notion\*.svg` à côté de
+  l'exe ; le dossier est ignoré par git (icônes propriétaires de Notion) et copié au build s'il
+  existe ; sans lui, les glyphes Segoe reviennent.
 - **Reste à faire** : les icônes météo gardent leurs couleurs ; le relief Arcos des cases teintées et la
   typo 13 px ne sont pas transposés ; décision de Bruno : garder les formes actuelles avec la palette
   Arcos.
