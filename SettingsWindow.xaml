@@ -6,31 +6,34 @@
         Title="Atoll Settings"
         Width="700" Height="780" MinHeight="400" MinWidth="560" ResizeMode="CanResize"
         WindowStartupLocation="CenterScreen"
-        Background="#FF1C1C1E" Foreground="White"
+        Background="{DynamicResource Surface}" Foreground="{DynamicResource Ink}"
         FontFamily="Segoe UI Variable Text, Segoe UI" FontSize="13">
 
+    <!-- Colors come from the theme palette in App.xaml (Services\ThemeService). On Windows 11 the window
+         background is replaced by the Mica backdrop (Services\WindowBackdrop), in dark or light mode
+         depending on the theme's ink. -->
     <Window.Resources>
         <Style TargetType="CheckBox">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Margin" Value="0,5" />
         </Style>
         <Style TargetType="RadioButton">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Margin" Value="0,4,16,4" />
         </Style>
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="#FF2C2C2E" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="BorderBrush" Value="#FF48484A" />
-            <Setter Property="CaretBrush" Value="White" />
+            <Setter Property="Background" Value="{DynamicResource Fill}" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Separator}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource Ink}" />
             <Setter Property="Padding" Value="6,3" />
         </Style>
     </Window.Resources>
 
     <DockPanel>
-        <Border DockPanel.Dock="Bottom" Background="#FF161618" BorderBrush="#FF2C2C2E" BorderThickness="0,1,0,0">
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource Fill}" BorderBrush="{DynamicResource Separator}" BorderThickness="0,1,0,0">
             <Grid Margin="16,10">
-                <TextBlock x:Name="CreditText" VerticalAlignment="Center" FontSize="12" Foreground="#80FFFFFF" />
+                <TextBlock x:Name="CreditText" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource Secondary}" />
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource ChipButton}" Content="Reset to defaults" Click="OnResetClick" />
                     <Button Style="{StaticResource ChipButton}" Content="Close" Margin="8,0,0,0" Click="OnCloseClick" />
@@ -38,7 +41,7 @@
             </Grid>
         </Border>
         <!-- Section index: jumps to a section; the current one is highlighted while scrolling. -->
-        <Border DockPanel.Dock="Left" Width="168" Background="#FF161618" BorderBrush="#FF2C2C2E" BorderThickness="0,0,1,0">
+        <Border DockPanel.Dock="Left" Width="168" Background="{DynamicResource Fill}" BorderBrush="{DynamicResource Separator}" BorderThickness="0,0,1,0">
             <ScrollViewer x:Name="NavScroller" VerticalScrollBarVisibility="Auto">
                 <StackPanel x:Name="Nav" Margin="10,14,10,14" />
             </ScrollViewer>

@@ -26,7 +26,13 @@ license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What
   the Notifications page) brings the app forward: window by AppUserModelID property, then
   `IApplicationActivationManager` for packaged ids, then process name, then `shell:AppsFolder`.
   `DISLAND_ACTIVATE=<AUMID>|<log.txt>` (Debug) activates that id after 2 s and logs the foreground
-  process; verified with Claude, Discord, Slack, Spotify (running) and WhatsApp (launched).
+  process; verified with Claude, Discord, Slack, Spotify (running) and WhatsApp (launched). While such
+  an alert shows, hovering doesn't expand the island (`AlertIsClickable`), so the click reaches it.
+- **Settings window:** follows the theme palette and gets Windows 11 chrome from
+  `Services/WindowBackdrop.cs`: Mica backdrop (build 22621+, the window background then stays
+  transparent) and a dark or light title bar chosen from the theme ink's lightness, not from Windows'
+  own setting, so text stays readable. The DISLAND_SETTINGS_SNAPSHOT PNG therefore has a transparent
+  background; screenshot the real window to see Mica.
 - **Own identity and mutex:** package `Atoll` / `CN=Atoll Dev` (`app.manifest`,
   `Identity\AppxManifest.xml`, `setup-identity.ps1`, which prefers an installed Windows SDK's
   makeappx/signtool and retries `Add-AppxPackage` from `%UserProfile%`); `Local\Atoll.SingleInstance`.

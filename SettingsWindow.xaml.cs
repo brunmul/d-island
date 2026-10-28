@@ -13,10 +13,11 @@ namespace DIsland;
 /// <summary>Edits <see cref="AppSettings"/> live: every change is applied to the island immediately.</summary>
 public partial class SettingsWindow : Window
 {
-    private static readonly Brush Secondary = Frozen(Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
-    private static readonly Brush Faint = Frozen(Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF));
-    private static readonly Brush Hover = Frozen(Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF));
-    private static readonly Brush Selected = Frozen(Color.FromArgb(0x3A, 0xFF, 0xFF, 0xFF));
+    // Theme palette (App.xaml, changed in place by the island's ApplyTheme), so Settings follows the theme.
+    private Brush Secondary => (Brush)FindResource("Secondary");
+    private Brush Faint => (Brush)FindResource("Tertiary");
+    private Brush Hover => (Brush)FindResource("FillHover");
+    private Brush Selected => (Brush)FindResource("FillPressed");
 
     /// <summary>"1.0.0", from the assembly version (csproj &lt;Version&gt;).</summary>
     private static readonly string AppVersion =
@@ -54,14 +55,31 @@ public partial class SettingsWindow : Window
         Closed += (_, _) =>
         {
             _settings.Save();
+            _settings.Changed -= ApplyWindowTheme;
             if (_updateStatusRefresh is not null && App.Updates is { } updates) updates.Changed -= _updateStatusRefresh;
         };
+        SourceInitialized += (_, _) => ApplyWindowTheme();
+        _settings.Changed += ApplyWindowTheme;
         WheelScrolling.Attach(SettingsScroller, pixelsPerNotch: 36);
         WheelScrolling.Attach(NavScroller, pixelsPerNotch: 36);
         SettingsScroller.ScrollChanged += (_, _) => UpdateNavSelection();
         Loaded += (_, _) => UpdateNavSelection();
 
         Build();
+    }
+
+    /// <summary>
+    /// Native Windows 11 chrome: Mica behind the content and a dark or light title bar, chosen from the
+    /// theme's ink so the text stays readable whatever Windows' own light/dark setting is. Without Mica
+    /// (Windows 10) the theme's surface color is the background.
+    /// </summary>
+    private void ApplyWindowTheme()
+    {
+        var theme = ThemeService.Find(_settings.Theme);
+        var ink = ThemeService.ParseColor(theme.Colors.Ink, Colors.White);
+        var dark = WindowBackdrop.Lightness(ink) > 0.5;
+        var mica = WindowBackdrop.Apply(this, dark);
+        Background = mica ? Brushes.Transparent : (Brush)FindResource("Surface");
     }
 
     // ---------------------------------------------------------------- layout
@@ -1047,7 +1065,7 @@ public partial class SettingsWindow : Window
         current.Background = Selected;
     }
 
-    private static void Note(Panel panel, string text) =>
+    private void Note(Panel panel, string text) =>
         panel.Children.Add(new TextBlock
         {
             Text = text,

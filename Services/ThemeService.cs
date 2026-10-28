@@ -162,6 +162,7 @@ public static class ThemeService
     public static void ApplyPalette(ThemeColors c)
     {
         var r = Application.Current.Resources;
+        Set(r, "Surface", c.Surface, Colors.Black);
         Set(r, "Ink", c.Ink, Colors.White);
         Set(r, "Secondary", c.InkSecondary, Color.FromArgb(0x99, 0xFF, 0xFF, 0xFF));
         Set(r, "Tertiary", c.InkTertiary, Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF));

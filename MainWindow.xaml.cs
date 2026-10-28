@@ -1973,8 +1973,14 @@ public partial class MainWindow : Window
 
     // ---------------------------------------------------------------- hover / click
 
+    /// <summary>A notification alert the user can click to open its app: hovering must not expand the island under the pointer first.</summary>
+    private bool AlertIsClickable =>
+        !_state.IsExpanded && _state.Transient == IslandView.Notification && _settings.ClickOpensNotificationApp
+        && _alertNotification?.AppId is { Length: > 0 };
+
     private void OnRootMouseEnter(object sender, MouseEventArgs e)
     {
+        if (AlertIsClickable) return;
         if (_settings.ExpandOnHover && !_state.IsExpanded && !_hoverSuppressed) _hoverTimer.Start();
     }
 
@@ -1995,8 +2001,7 @@ public partial class MainWindow : Window
         }
 
         // A click on another app's notification opens that app, like tapping a banner on iPhone.
-        if (!_state.IsExpanded && _state.Transient == IslandView.Notification && _settings.ClickOpensNotificationApp
-            && _alertNotification?.AppId is { Length: > 0 } notificationApp)
+        if (AlertIsClickable && _alertNotification?.AppId is { Length: > 0 } notificationApp)
         {
             _hoverSuppressed = true;
             _state.DismissTransient();
@@ -2624,6 +2629,7 @@ public partial class MainWindow : Window
         NotifApp.Text = hide ? "now" : n.AppName;
         _alertNotification = n;
         NotificationView.Cursor = n.AppId is { Length: > 0 } && _settings.ClickOpensNotificationApp ? Cursors.Hand : null;
+        if (NotificationView.Cursor is not null) _hoverTimer.Stop(); // a pointer already over the island shouldn't expand over the alert
         var seconds = Math.Clamp(_settings.NotificationSeconds, 2, 15);
         SetAlertPage(ExpandedPage.Notifications, seconds);
         _state.ShowTransient(IslandView.Notification, TransientPriority.Notification, TimeSpan.FromSeconds(seconds));

@@ -9,6 +9,7 @@
         <!-- Theme palette (Services\ThemeService.ApplyPalette changes these colors in place, so they are
              never frozen; styles reference them through DynamicResource so sealing a style can't freeze them).
              The values here are the Classic theme; a chosen theme overrides them at startup. -->
+        <SolidColorBrush x:Key="Surface" Color="#FF000000" />
         <SolidColorBrush x:Key="Ink" Color="#FFFFFFFF" />
         <SolidColorBrush x:Key="Secondary" Color="#99FFFFFF" />
         <SolidColorBrush x:Key="Tertiary" Color="#55FFFFFF" />

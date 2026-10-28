@@ -71,9 +71,13 @@ redistribution, y compris commerciale, à ces conditions :
 - **Réglages** : section THEME en tête (choix, description, « Save current look as theme », « Reload
   themes », « Open themes folder ») ; `AppSettings.Theme`.
 - **Hook de debug** `DISLAND_THEME=<nom>` : porte ce thème pour la session, sans l'enregistrer.
-- **Reste à faire** : la fenêtre Réglages garde sa palette sombre ; les icônes météo gardent leurs
-  couleurs ; le relief Arcos des cases teintées et la typo 13 px ne sont pas transposés ; le « nouveau
-  visuel » au-delà de la palette (formes, mise en page des pages) attend les références de Bruno.
+- **Fenêtre Réglages (28/10, soir)** : elle suit la palette du thème (brosses `Surface`, `Ink`,
+  `Secondary`, `Fill`, `Separator`… en `DynamicResource`) et prend le rendu natif Windows 11 :
+  fond Mica et barre de titre en mode sombre ou clair selon la clarté de l'encre du thème
+  (`Services/WindowBackdrop.cs`, Windows 11 22H2+ ; sinon fond uni `Surface`).
+- **Reste à faire** : les icônes météo gardent leurs couleurs ; le relief Arcos des cases teintées et la
+  typo 13 px ne sont pas transposés ; décision de Bruno : garder les formes actuelles avec la palette
+  Arcos.
 
 ### Où sont les couleurs, formes et matériaux aujourd'hui
 
@@ -139,7 +143,9 @@ redistribution, y compris commerciale, à ces conditions :
   (`com.squirrel.Discord.Discord` → Discord) ; (4) sinon `shell:AppsFolder` comme les quick apps.
 - `MainWindow.xaml.cs` : `_alertNotification` mémorise la notification affichée ; un clic sur l'îlot
   replié pendant l'alerte (`OnRootMouseLeftButtonUp`) ferme l'alerte et appelle `AppActivator`. Le
-  curseur devient une main. La page Notifications étendue utilise aussi `AppActivator`.
+  curseur devient une main. La page Notifications étendue utilise aussi `AppActivator`. Tant que
+  l'alerte est cliquable (`AlertIsClickable`), le survol ne déplie pas l'îlot : sinon le clic tombait sur
+  la liste des notifications au lieu d'ouvrir l'app (retour de Bruno, 28/10).
 - Réglage `ClickOpensNotificationApp` (activé par défaut) dans Settings > Notifications.
 - **Activation vérifiée** (hook Debug `DISLAND_ACTIVATE=<AUMID>|<log>`, 28/10) : Claude
   (`Claude_pzs8sxrjxfjjc!Claude`), Discord (`com.squirrel.Discord.Discord`), Slack
