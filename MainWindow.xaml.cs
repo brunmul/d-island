@@ -2545,12 +2545,15 @@ public partial class MainWindow : Window
 
     private readonly System.Runtime.CompilerServices.ConditionalWeakTable<ImageSource, object> _iconLuminance = new();
 
-    /// <summary>True when the icon is about as light (or dark) as the surface, i.e. far from the ink.</summary>
+    /// <summary>True for a near-monochrome logo about as light (or dark) as the surface, i.e. far from the ink.
+    /// Colored icons (Claude's orange tile) carry their own contrast and never get a plate.</summary>
     private bool NeedsIconPlate(ImageSource image)
     {
         if (image is not BitmapSource bitmap || Ink is not SolidColorBrush ink) return false;
-        var luminance = (double)_iconLuminance.GetValue(image, _ => ColorTools.VisibleLuminance(bitmap) ?? -1.0);
-        return luminance >= 0 && Math.Abs(luminance - ColorTools.Luminance(ink.Color)) > 0.6;
+        if (_iconLuminance.GetValue(image, _ => ColorTools.VisibleTone(bitmap) is { Saturation: < 0.2 } tone ? tone.Luminance : -1.0)
+            is not double luminance || luminance < 0)
+            return false;
+        return Math.Abs(luminance - ColorTools.Luminance(ink.Color)) > 0.6;
     }
 
     /// <summary>Shares the room left after the clock and weather between the messages; longer ones end in "…".</summary>

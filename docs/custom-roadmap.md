@@ -178,8 +178,10 @@ redistribution, y compris commerciale, à ces conditions :
   « Hide the message text » ; jamais le nom de l'app devant le texte, seulement son icône (retour de
   Bruno, 28/10), avec l'icône du menu Démarrer si la notification n'a pas de logo.
 - Icône sans fond propre et du ton de la surface (logo blanc de ChatGPT sur Arcos Clair) : plaque
-  couleur encre derrière (`NeedsIconPlate`, luminance moyenne des pixels visibles à plus de 0,6 de
-  celle de l'encre).
+  couleur encre derrière (`NeedsIconPlate` : logo presque sans couleur, saturation moyenne < 0,2, et
+  luminance moyenne des pixels visibles à plus de 0,6 de celle de l'encre). Les icônes colorées
+  (carré orange de Claude) n'en ont jamais. Vérifié par captures sur le thème courant, Arcos Clair et
+  Arcos Sombre.
 - Rien n'est écrit sur disque à part les noms des apps ; « Clear all » vide aussi la pilule ; masquer une
   seule notification la laisse affichée. `PRIVACY.txt` mis à jour.
 - Hook Debug `DISLAND_STICKY=App|texte[|AUMID];…` (épingle pour la session, fausses notifications).

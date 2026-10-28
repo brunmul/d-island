@@ -25,8 +25,9 @@ public static class ColorTools
     /// <summary>Relative luminance (0 black … 1 white), sRGB-weighted.</summary>
     public static double Luminance(Color c) => (0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B) / 255;
 
-    /// <summary>Average luminance of an image's visible pixels (alpha-weighted); null when it's almost all transparent.</summary>
-    public static double? VisibleLuminance(BitmapSource source)
+    /// <summary>Average luminance and saturation of an image's visible pixels (alpha-weighted); null when it's
+    /// almost all transparent.</summary>
+    public static (double Luminance, double Saturation)? VisibleTone(BitmapSource source)
     {
         try
         {
@@ -34,15 +35,17 @@ public static class ColorTools
             int w = bgra.PixelWidth, h = bgra.PixelHeight;
             var pixels = new byte[w * h * 4];
             bgra.CopyPixels(pixels, w * 4, 0);
-            double sum = 0, weight = 0;
+            double sum = 0, saturation = 0, weight = 0;
             for (var i = 0; i < pixels.Length; i += 4)
             {
                 var a = pixels[i + 3] / 255.0;
                 if (a <= 0.05) continue;
-                sum += a * Luminance(Color.FromRgb(pixels[i + 2], pixels[i + 1], pixels[i]));
+                var c = Color.FromRgb(pixels[i + 2], pixels[i + 1], pixels[i]);
+                sum += a * Luminance(c);
+                saturation += a * ToHsl(c).S;
                 weight += a;
             }
-            return weight < w * h * 0.02 ? null : sum / weight;
+            return weight < w * h * 0.02 ? null : (sum / weight, saturation / weight);
         }
         catch (Exception)
         {
