@@ -145,9 +145,9 @@ redistribution, y compris commerciale, à ces conditions :
   (`Claude_pzs8sxrjxfjjc!Claude`), Discord (`com.squirrel.Discord.Discord`), Slack
   (`com.tinyspeck.slackdesktop_…!Slack`) et Spotify (`…\Spotify.exe`) reviennent au premier plan ;
   WhatsApp (`5319275A.WhatsAppDesktop_…!App`, fermé) se lance. Aucune erreur dans `error.log`.
-- **Reste à tester avec de vraies notifications** : enregistrer le paquet Atoll
-  (`Identity\setup-identity.ps1 -ExeDir <dossier de l'exe>`, un UAC pour le certificat), arrêter
-  D-Island officiel, lancer Atoll, provoquer une notification et cliquer l'alerte.
+- **Validé avec de vraies notifications le 28/10** (Bruno) : `tools\test-notifications.ps1` enregistre
+  le paquet Atoll pour la build Debug, arrête D-Island officiel et lance Atoll ; le clic sur l'alerte
+  ouvre bien l'app.
 
 ### Où sont les alertes transitoires et le presse-papiers
 
@@ -209,11 +209,8 @@ namespace `DIsland`, `DIsland.exe`, mutex, dossiers de données, identité de pa
 ## 5. Prochaines étapes
 
 1. ~~Créer le fork `brunmul/d-island`~~ : fait, `origin` = fork, `upstream` = H7gamer.
-2. Tester le clic sur une notification avec de vraies apps : arrêter D-Island, enregistrer le paquet
-   Atoll (Settings > Notifications > Set up…), lancer Atoll, provoquer une notification Claude /
-   Discord / Slack / WhatsApp.
-3. Références visuelles de Bruno pour le « nouveau visuel » au-delà de la palette Arcos (formes, pages,
-   relief des cases, typographie), puis dessiner.
+2. ~~Tester le clic sur une notification~~ : validé le 28/10.
+3. Visuel : Bruno garde les formes actuelles avec la palette Arcos pour l'instant (décision du 28/10).
 4. Choisir le nom et l'icône définitifs.
 5. Décider du sort de l'updater (désactiver ou re-pointer) avant de construire un installeur.
 6. Chantier IA : répondre aux questions de la section 3, puis `AssistantService`.
