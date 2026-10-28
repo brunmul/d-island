@@ -86,7 +86,7 @@ redistribution, y compris commerciale, à ces conditions :
 - **Icônes des onglets (28/10)** : Home, Notifications, Calendar, To-Do, Notes, Shelf, Weather, Apps
   et Wallpaper prennent les icônes pleines du pack Notion · pages (home, bell, calendar,
   checkmark-list, pencil, tray, weather-cloud-sun, grid-square-2x2, photo-landscape), 14 px, en
-  `Ink` (onglet actif) ou `Secondary`. `Services/IconPack.cs` lit `icons\notion\*.svg` à côté de
+  `Ink` (onglet actif) ou `Secondary` ; l'engrenage des Réglages prend `gear`. `Services/IconPack.cs` lit `icons\notion\*.svg` à côté de
   l'exe ; le dossier est ignoré par git (icônes propriétaires de Notion) et copié au build s'il
   existe ; sans lui, les glyphes Segoe reviennent.
 - **Reste à faire** : les icônes météo gardent leurs couleurs ; le relief Arcos des cases teintées et la

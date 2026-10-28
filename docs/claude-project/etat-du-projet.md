@@ -20,7 +20,7 @@ Atoll est le fork personnel de D-Island 1.2.1 par Bruno Muller : même îlot dyn
 4. `f67c974` Le survol ne déplie plus l'îlot pendant une alerte cliquable ; fenêtre Réglages thémée avec Mica Windows 11.
 5. `862b6fc` Les 34 presets Arcos / Slack de DockyWin en thèmes intégrés (dégradés), liste déroulante avec nuancier.
 6. `478da88` Pilule bien ronde pour Arcos et les presets.
-7. `5d232e1` (branche `claude/project-thread-v648mp`) Icônes des onglets de l'îlot tirées du pack Notion · pages, lues à l'exécution dans `icons\notion\` (dossier ignoré par git, car les icônes appartiennent à Notion) ; repli sur les glyphes Segoe si un fichier manque.
+7. `5d232e1` (branche `claude/project-thread-v648mp`) Icônes des onglets de l'îlot et engrenage des Réglages tirés du pack Notion · pages, lues à l'exécution dans `icons\notion\` (dossier ignoré par git, car les icônes appartiennent à Notion) ; repli sur les glyphes Segoe si un fichier manque.
 
 ## Décisions prises
 

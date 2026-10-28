@@ -123,6 +123,7 @@ public partial class MainWindow : Window
         _calendar = new CalendarService(settings);
         _alarms = new AlarmService(settings);
         InitializeComponent();
+        UsePackIcons();
         _windows = new WindowEventWatcher(TimeSpan.FromMilliseconds(30));
         _background = new BackgroundDetector(GetIslandScreenRect, _windows);
         _windows.Changed += () =>
@@ -973,23 +974,34 @@ public partial class MainWindow : Window
         _ => "home",
     };
 
+    /// <summary>An icon from the local pack at <paramref name="size"/> px, filled with a palette brush; null when absent.</summary>
+    private static Path? PackIcon(string name, string brush, double size)
+    {
+        if (IconPack.Get(name) is not { } geometry) return null;
+        var icon = new Path
+        {
+            Data = geometry,
+            Width = IconPack.Grid,
+            Height = IconPack.Grid,
+            LayoutTransform = new ScaleTransform(size / IconPack.Grid, size / IconPack.Grid),
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
+        };
+        icon.SetResourceReference(Shape.FillProperty, brush);
+        return icon;
+    }
+
+    /// <summary>Fixed XAML icons that the local pack replaces when it has them.</summary>
+    private void UsePackIcons()
+    {
+        if (PackIcon("gear", "Secondary", 14) is { } gear) SettingsButton.Content = gear;
+    }
+
     /// <summary>A tab's icon: the pack's shape at 14 px when present, else the Segoe glyph.</summary>
     private FrameworkElement PageIcon(ExpandedPage page, bool selected)
     {
         var brush = selected ? "Ink" : "Secondary";
-        if (IconPack.Get(PageIconName(page)) is { } geometry)
-        {
-            var icon = new Path
-            {
-                Data = geometry,
-                Width = IconPack.Grid,
-                Height = IconPack.Grid,
-                LayoutTransform = new ScaleTransform(14 / IconPack.Grid, 14 / IconPack.Grid),
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-            icon.SetResourceReference(Shape.FillProperty, brush);
-            return icon;
-        }
+        if (PackIcon(PageIconName(page), brush, 14) is { } icon) return icon;
         var glyph = new TextBlock
         {
             Style = (Style)FindResource("Glyph"),
