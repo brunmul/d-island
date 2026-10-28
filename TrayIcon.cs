@@ -62,7 +62,7 @@ public sealed class TrayIcon : IDisposable
         _notifyIcon = new NotifyIcon
         {
             Icon = _icon,
-            Text = "D-Island",
+            Text = Branding.Name,
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -77,7 +77,10 @@ public sealed class TrayIcon : IDisposable
         _icon.Dispose();
     }
 
-    /// <summary>Draws a small black pill so no .ico asset is needed.</summary>
+    /// <summary>
+    /// Draws a small violet ring (an atoll) with an amber dot, so no .ico asset is needed. Same design as
+    /// Atoll.ico (tools\make-icon.ps1): the license requires an icon clearly different from D-Island's pill.
+    /// </summary>
     private static Icon CreateIcon()
     {
         using var bmp = new Bitmap(32, 32);
@@ -86,19 +89,10 @@ public sealed class TrayIcon : IDisposable
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.Clear(Color.Transparent);
 
-            using var path = new GraphicsPath();
-            var r = new RectangleF(2, 9, 28, 14);
-            const float d = 14;
-            path.AddArc(r.X, r.Y, d, d, 90, 180);
-            path.AddArc(r.Right - d, r.Y, d, d, 270, 180);
-            path.CloseFigure();
-
-            using var fill = new SolidBrush(Color.FromArgb(255, 16, 16, 16));
-            using var pen = new Pen(Color.FromArgb(220, 255, 255, 255), 1.5f);
-            using var dot = new SolidBrush(Color.FromArgb(255, 48, 209, 88));
-            g.FillPath(fill, path);
-            g.DrawPath(pen, path);
-            g.FillEllipse(dot, 20, 13, 6, 6);
+            using var ring = new Pen(Color.FromArgb(255, 124, 92, 255), 6f);
+            using var lagoon = new SolidBrush(Color.FromArgb(255, 255, 196, 107));
+            g.DrawEllipse(ring, 5, 5, 22, 22);
+            g.FillEllipse(lagoon, 13, 13, 6, 6);
         }
 
         var handle = bmp.GetHicon();

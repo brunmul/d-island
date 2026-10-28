@@ -1,3 +1,17 @@
+# Atoll (fork de D-Island)
+
+> **Version modifiée de D-Island, par Bruno Muller ([BrunMul](https://github.com/brunmul)). Ce n'est
+> pas une version officielle de D-Island et h7 ne la prend pas en charge.**
+>
+> Based on D-Island by h7 (ibuildrigs) - https://github.com/H7gamer/d-island
+>
+> Nom et icône provisoires. Objectifs : des thèmes visuels et des actions Claude / GPT sur le texte
+> copié. Points d'entrée dans le code, obligations de licence et questions ouvertes :
+> [docs/custom-roadmap.md](docs/custom-roadmap.md). Le reste de ce README est celui de D-Island 1.2.1 ;
+> les téléchargements et l'updater qu'il décrit concernent l'original.
+
+---
+
 # D-Island
 
 A Dynamic Island–style overlay for Windows 10/11 (WPF, .NET 8): music, timers, notifications,

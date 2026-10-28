@@ -255,14 +255,20 @@ public partial class SettingsWindow : Window
                       "alarm is running, installs quietly, and reopens by itself.");
 
         var about = Section("ABOUT");
-        about.Children.Add(new TextBlock { Text = $"D-Island {AppVersion}", FontSize = 15, FontWeight = FontWeights.SemiBold });
-        about.Children.Add(new TextBlock { Text = "A Dynamic Island for Windows", Foreground = Secondary, Margin = new Thickness(0, 2, 0, 0) });
-        about.Children.Add(new TextBlock { Text = "Built by h7  ·  ibuildrigs", FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 8, 0, 0) });
-        about.Children.Add(new TextBlock { Text = "© 2026 h7 (ibuildrigs). Licensed under the D-Island License 1.0.", Foreground = Secondary, Margin = new Thickness(0, 2, 0, 0) });
-        Note(about, "You may use, modify and share D-Island if you credit its author, respect people's privacy and never " +
-                    "use it to harm anyone. Official releases come only from github.com/H7gamer/d-island and " +
-                    "ibuildrigs.com; copies downloaded anywhere else are not authorised by h7 and are used at your own " +
-                    "risk. D-Island isn't affiliated with Apple or Microsoft.");
+        about.Children.Add(new TextBlock { Text = $"{Branding.Name} {AppVersion}", FontSize = 15, FontWeight = FontWeights.SemiBold });
+        about.Children.Add(new TextBlock { Text = Branding.Tagline, Foreground = Secondary, Margin = new Thickness(0, 2, 0, 0) });
+        // Required by the D-Island License, section 3(a): keep this credit visible and unchanged.
+        about.Children.Add(new TextBlock { Text = Branding.Credit, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) });
+        about.Children.Add(new TextBlock
+        {
+            Text = $"{Branding.Name} is a modified version of D-Island, by {Branding.Author}. It is not an official D-Island release and is not supported by h7.",
+            Foreground = Secondary, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 2, 0, 0),
+        });
+        about.Children.Add(new TextBlock { Text = "© 2026 h7 (ibuildrigs) and contributors. Licensed under the D-Island License 1.0.", Foreground = Secondary, Margin = new Thickness(0, 2, 0, 0) });
+        Note(about, $"You may use, modify and share {Branding.Name} under the D-Island License if you credit D-Island's author, " +
+                    "respect people's privacy and never use it to harm anyone. Official D-Island releases come only from " +
+                    $"github.com/H7gamer/d-island and ibuildrigs.com; {Branding.Name} is not one of them. Neither project is " +
+                    "affiliated with Apple or Microsoft.");
 
         var links = new WrapPanel { Margin = new Thickness(0, 6, 0, 0) };
         void Link(string text, string target)
@@ -276,7 +282,8 @@ public partial class SettingsWindow : Window
             links.Children.Add(button);
         }
         string Doc(string name) => System.IO.Path.Combine(AppContext.BaseDirectory, name);
-        Link("GitHub", "https://github.com/H7gamer/d-island");
+        Link($"{Branding.Name} on GitHub", Branding.Repository);
+        Link("D-Island (original)", Branding.UpstreamRepository);
         Link("ibuildrigs.com", "https://ibuildrigs.com");
         if (System.IO.File.Exists(Doc("HowToUse.html"))) Link("How to use", Doc("HowToUse.html")); // installed copies
         if (System.IO.File.Exists(Doc("LICENSE.txt"))) Link("License", Doc("LICENSE.txt"));
@@ -284,7 +291,7 @@ public partial class SettingsWindow : Window
         if (System.IO.File.Exists(Doc("PRIVACY.txt"))) Link("Privacy", Doc("PRIVACY.txt"));
         if (System.IO.File.Exists(Doc("THIRD-PARTY-NOTICES.txt"))) Link("Third-party notices", Doc("THIRD-PARTY-NOTICES.txt"));
         about.Children.Add(links);
-        CreditText.Text = $"D-Island {AppVersion}  ·  Built by h7  ·  ibuildrigs.com";
+        CreditText.Text = $"{Branding.Name} {AppVersion}  ·  Based on D-Island by h7 (ibuildrigs)";
 
         _loading = false;
         Dispatcher.InvokeAsync(UpdateNavSelection, DispatcherPriority.Loaded); // after layout

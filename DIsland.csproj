@@ -11,14 +11,15 @@
     <AssemblyName>DIsland</AssemblyName>
     <RootNamespace>DIsland</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>DIsland.ico</ApplicationIcon>
-    <Product>D-Island</Product>
+    <!-- Modified version "Atoll" (provisional name): see Branding.cs and docs\custom-roadmap.md. -->
+    <ApplicationIcon>Atoll.ico</ApplicationIcon>
+    <Product>Atoll</Product>
     <Version>1.2.1</Version>
-    <Description>A Dynamic Island for Windows</Description>
-    <Authors>h7</Authors>
-    <Company>ibuildrigs</Company>
-    <Copyright>Copyright (c) 2026 h7 (ibuildrigs). Licensed under the D-Island License 1.0.</Copyright>
-    <PackageProjectUrl>https://github.com/H7gamer/d-island</PackageProjectUrl>
+    <Description>A Dynamic Island for Windows. Based on D-Island by h7 (ibuildrigs); modified by Bruno Muller. Not an official D-Island release.</Description>
+    <Authors>Bruno Muller, h7</Authors>
+    <Company>BrunMul</Company>
+    <Copyright>Copyright (c) 2026 h7 (ibuildrigs) and contributors. Modified by Bruno Muller. Licensed under the D-Island License 1.0.</Copyright>
+    <PackageProjectUrl>https://github.com/brunmul/d-island</PackageProjectUrl>
     <!-- WinForms' DPI analyzer; WPF owns DPI here and reads it from app.manifest. -->
     <NoWarn>$(NoWarn);WFAC010</NoWarn>
 

@@ -1,9 +1,9 @@
 # D-Island - Copyright 2026 h7 (ibuildrigs) and contributors.
 # Licensed under the D-Island License 1.0; see LICENSE.txt and NOTICE.txt.
 
-# Builds the D-Island installer: artifacts\D-Island-Setup-<version>.exe
+# Builds the Atoll installer (modified version of D-Island): artifacts\Atoll-Setup-<version>.exe
 #
-#   1. Generates DIsland.ico (the black pill with a green dot, as in the tray) if it's missing.
+#   1. Generates Atoll.ico (tools\make-icon.ps1: the violet ring, as in the tray) if it's missing.
 #   2. Publishes a self-contained Release build (no .NET install needed on the target PC).
 #   3. Compiles installer\DIsland.iss with Inno Setup 6 (winget install JRSoftware.InnoSetup).
 #   4. Writes the .sha256 file the in-app updater checks.
@@ -18,47 +18,9 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $env:PATH = "$env:ProgramFiles\dotnet;$env:PATH"
 
-# ---- 1. icon (multi-size, PNG-compressed entries; Windows Vista and later read these)
-$ico = Join-Path $root 'DIsland.ico'
-if (-not (Test-Path $ico)) {
-    Write-Host 'Generating DIsland.ico...'
-    Add-Type -AssemblyName System.Drawing
-    $sizes = 16, 24, 32, 48, 64, 128, 256
-    $frames = foreach ($size in $sizes) {
-        $bmp = New-Object System.Drawing.Bitmap $size, $size
-        $g = [System.Drawing.Graphics]::FromImage($bmp)
-        $g.SmoothingMode = 'AntiAlias'
-        $g.Clear([System.Drawing.Color]::Transparent)
-        $w = $size * 0.92; $h = $size * 0.46; $x = ($size - $w) / 2; $y = ($size - $h) / 2
-        $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-        $path.AddArc($x, $y, $h, $h, 90, 180)
-        $path.AddArc($x + $w - $h, $y, $h, $h, 270, 180)
-        $path.CloseFigure()
-        $g.FillPath((New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 18, 18, 20))), $path)
-        $pen = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(200, 255, 255, 255)), ([Math]::Max(1, $size / 22))
-        $g.DrawPath($pen, $path)
-        $dot = $h * 0.36
-        $g.FillEllipse((New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(255, 48, 209, 88))),
-            $x + $w - $h * 0.5 - $dot / 2, $y + ($h - $dot) / 2, $dot, $dot)
-        $g.Dispose()
-        $ms = New-Object System.IO.MemoryStream
-        $bmp.Save($ms, [System.Drawing.Imaging.ImageFormat]::Png)
-        $bmp.Dispose()
-        , @($size, $ms.ToArray())
-    }
-    $out = New-Object System.IO.MemoryStream
-    $wr = New-Object System.IO.BinaryWriter $out
-    $wr.Write([uint16]0); $wr.Write([uint16]1); $wr.Write([uint16]$frames.Count)   # ICONDIR
-    $offset = 6 + 16 * $frames.Count
-    foreach ($f in $frames) {                                                         # ICONDIRENTRY
-        $s = if ($f[0] -ge 256) { 0 } else { $f[0] }
-        $wr.Write([byte]$s); $wr.Write([byte]$s); $wr.Write([byte]0); $wr.Write([byte]0)
-        $wr.Write([uint16]1); $wr.Write([uint16]32); $wr.Write([uint32]$f[1].Length); $wr.Write([uint32]$offset)
-        $offset += $f[1].Length
-    }
-    foreach ($f in $frames) { $wr.Write([byte[]]$f[1]) }
-    [System.IO.File]::WriteAllBytes($ico, $out.ToArray())
-}
+# ---- 1. icon: this modified version's own icon (D-Island License 3(c)); drawn by tools\make-icon.ps1
+$ico = Join-Path $root 'Atoll.ico'
+if (-not (Test-Path $ico)) { & (Join-Path $PSScriptRoot 'make-icon.ps1') }
 
 # ---- 1b. wizard artwork: the pill on the setup pages (small: top-right corner; large: finish page)
 Add-Type -AssemblyName System.Drawing
