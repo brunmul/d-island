@@ -275,15 +275,21 @@
                 </Border>
                 <StackPanel x:Name="ExpandedContent" Margin="18,12,18,14">
 
-                    <!-- Page navigation (tabs or dots, built in code); mic/camera chip on the right, left of the gear. -->
+                    <!-- Page navigation (tabs or dots, built in code); mic/camera chip on the right, left of the gear.
+                         The chip only gets the room the tabs leave, and trims its text (full text in the tooltip). -->
                     <Grid x:Name="PageNav" Height="22" Margin="0,0,34,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
                         <StackPanel x:Name="PageTabs" Orientation="Horizontal" VerticalAlignment="Center" />
-                        <StackPanel x:Name="PrivacyChip" Orientation="Horizontal" HorizontalAlignment="Right"
-                                    VerticalAlignment="Center" Visibility="Collapsed">
-                            <Ellipse x:Name="PrivacyChipDot" Width="7" Height="7" VerticalAlignment="Center" />
+                        <!-- A DockPanel, not a StackPanel: it passes the column's width on, so the text can trim. -->
+                        <DockPanel x:Name="PrivacyChip" Grid.Column="1" HorizontalAlignment="Right"
+                                   VerticalAlignment="Center" Margin="8,0,0,0" Visibility="Collapsed">
+                            <Ellipse x:Name="PrivacyChipDot" DockPanel.Dock="Left" Width="7" Height="7" VerticalAlignment="Center" />
                             <TextBlock x:Name="PrivacyChipText" FontSize="11" Margin="6,0,0,0" MaxWidth="170"
                                        Foreground="{DynamicResource Secondary}" TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
+                        </DockPanel>
                     </Grid>
 
                     <!-- One page visible at a time; switching slides between them (SwitchPage). -->

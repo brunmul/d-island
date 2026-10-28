@@ -1065,6 +1065,8 @@ public partial class MainWindow : Window
         // Dots sit centered; the nav row leaves room on the right for the gear, so balance it on the left.
         PageTabs.HorizontalAlignment = dots ? HorizontalAlignment.Center : HorizontalAlignment.Left;
         PageTabs.Margin = dots ? new Thickness(34, 0, 0, 0) : new Thickness(-8, 0, 0, 0);
+        // Dots are centered across the whole row; tabs keep their own column so the chip can't overlap them.
+        Grid.SetColumnSpan(PageTabs, dots ? 2 : 1);
         foreach (var page in pages)
         {
             var selected = page == _page;
@@ -1448,6 +1450,7 @@ public partial class MainWindow : Window
             : use.CameraInUse ? "Camera"
             : "Mic";
         PrivacyChipText.Text = $"{what} · {string.Join(", ", use.CameraApps.Concat(use.MicrophoneApps).Distinct())}";
+        PrivacyChip.ToolTip = PrivacyChipText.Text; // the tabs may leave room for only part of it
         ApplyGeometry();
     }
 
