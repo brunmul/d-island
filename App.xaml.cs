@@ -10,8 +10,10 @@ namespace DIsland;
 
 public partial class App : Application
 {
-    private const string MutexName = @"Local\DIsland.SingleInstance";
-    private const string OpenSettingsEventName = @"Local\DIsland.OpenSettings";
+    // Atoll's own names, so it can run beside an official D-Island (which uses Local\DIsland.*) and a second
+    // launch opens Atoll's settings, not D-Island's. Data folders are still shared; see docs\custom-roadmap.md.
+    private const string MutexName = @"Local\Atoll.SingleInstance";
+    private const string OpenSettingsEventName = @"Local\Atoll.OpenSettings";
 
     private Mutex? _singleInstance;
     private EventWaitHandle? _openSettingsSignal;

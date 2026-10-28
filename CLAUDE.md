@@ -7,6 +7,30 @@ measurements, Windows pitfalls, how to test, and what is still open.
 
 @CLAUDE.local.md
 
+## Atoll: this modified version
+
+This checkout is Bruno Muller's modified version of D-Island ("Atoll", provisional name), kept under
+the D-Island License: credit, name and icon in `Branding.cs`, `Atoll.ico` and `TrayIcon`; plan,
+license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What differs from upstream:
+
+- **Themes** (`Services/IslandTheme.cs`, `Services/ThemeService.cs`): a theme is colors + shape +
+  material + typography, JSON-serializable; built-in Classic (the D-Island look), Arcos Clair and
+  Arcos Sombre, plus `%AppData%\DIsland\themes\*.json`. Choosing one copies its shape, material, font
+  and accent source into `AppSettings`; its colors go into the shared brushes of `App.xaml`
+  (`Ink`, `Secondary`, `Tertiary`, `Green`, `Orange`, `Red`, `Cyan`, `Purple`, `ArtPlaceholder`,
+  `Fill`, `FillHover`, `FillPressed`, `Separator`), changed in place by `ApplyTheme()`. **Reference
+  them with `DynamicResource`, never `StaticResource`**: a StaticResource reference froze the brush and
+  the element kept the old color. New hard-coded colors go through the palette. Settings > Theme;
+  `DISLAND_THEME=<name>` wears a theme for one run (Debug).
+- **Notification click** (`Services/AppActivator.cs`): a click on a notification alert (and a row on
+  the Notifications page) brings the app forward: window by AppUserModelID property, then
+  `IApplicationActivationManager` for packaged ids, then process name, then `shell:AppsFolder`.
+- **Own identity and mutex:** package `Atoll` / `CN=Atoll Dev` (`app.manifest`,
+  `Identity\AppxManifest.xml`, `setup-identity.ps1`, which prefers an installed Windows SDK's
+  makeappx/signtool and retries `Add-AppxPackage` from `%UserProfile%`); `Local\Atoll.SingleInstance`.
+  Data folders are still `%AppData%\DIsland` and `%LocalAppData%\DIsland`, shared with an installed
+  D-Island. The updater still points at the official releases: deal with it before any installer.
+
 ## Build, run and debug
 
 ```powershell

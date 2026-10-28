@@ -8,7 +8,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         Topmost="True" ShowInTaskbar="False" ShowActivated="False"
         ResizeMode="NoResize" Focusable="False"
-        FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="White"
+        FontFamily="Segoe UI Variable Text, Segoe UI" Foreground="{DynamicResource Ink}"
         TextOptions.TextRenderingMode="Grayscale">
 
     <Window.Resources>
@@ -18,19 +18,16 @@
             <Setter Property="VerticalAlignment" Value="Top" />
             <Setter Property="Margin" Value="0,8,0,0" />
         </Style>
-        <SolidColorBrush x:Key="Orange" Color="#FFFF9F0A" />
-        <SolidColorBrush x:Key="Green" Color="#FF30D158" />
-        <SolidColorBrush x:Key="Cyan" Color="#FF64D2FF" />
-        <SolidColorBrush x:Key="Secondary" Color="#99FFFFFF" />
-        <SolidColorBrush x:Key="ArtPlaceholder" Color="#FF2C2C2E" />
+        <!-- Colors come from the theme palette in App.xaml (Ink, Secondary, Tertiary, Green, Orange, Red, Cyan,
+             Purple, ArtPlaceholder, Fill, FillHover, FillPressed, Separator); see Services\ThemeService. -->
 
         <!-- Text boxes on the To-Do and Notes pages: no chrome, the field behind them draws it. -->
         <Style x:Key="IslandTextBox" TargetType="TextBox">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="CaretBrush" Value="White" />
-            <Setter Property="SelectionBrush" Value="#FF64D2FF" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+            <Setter Property="CaretBrush" Value="{DynamicResource Ink}" />
+            <Setter Property="SelectionBrush" Value="{DynamicResource Cyan}" />
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Padding" Value="0" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -49,7 +46,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
-                        <Border CornerRadius="2" Background="#55FFFFFF" />
+                        <Border CornerRadius="2" Background="{DynamicResource Tertiary}" />
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -111,7 +108,7 @@
                     <!-- Optional weather: "| icon 26°" (UpdateClock). -->
                     <StackPanel x:Name="ClockWeather" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                         <TextBlock Text="|" FontSize="14" Margin="9,0,9,1" VerticalAlignment="Center"
-                                   Foreground="{StaticResource Secondary}" />
+                                   Foreground="{DynamicResource Secondary}" />
                         <Border x:Name="ClockWeatherIcon" Width="18" Height="18" VerticalAlignment="Center" />
                         <TextBlock x:Name="ClockWeatherTemp" FontSize="14" FontWeight="SemiBold" Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
@@ -127,18 +124,18 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Border x:Name="MediaArtSmall" Width="24" Height="24" Margin="7,0,0,0" CornerRadius="6"
-                        Background="{StaticResource ArtPlaceholder}">
+                        Background="{DynamicResource ArtPlaceholder}">
                     <TextBlock x:Name="MediaArtSmallFallback" Style="{StaticResource Glyph}" Text="&#xE8D6;"
-                               FontSize="11" Foreground="{StaticResource Secondary}" />
+                               FontSize="11" Foreground="{DynamicResource Secondary}" />
                 </Border>
                 <TextBlock x:Name="MediaTitleSmall" Grid.Column="1" Margin="10,0" VerticalAlignment="Center"
                            FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                 <StackPanel x:Name="Equalizer" Grid.Column="2" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="0,0,14,0">
-                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{StaticResource Green}" />
-                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{StaticResource Green}" />
-                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{StaticResource Green}" />
-                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{StaticResource Green}" />
+                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{DynamicResource Green}" />
+                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{DynamicResource Green}" />
+                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{DynamicResource Green}" />
+                    <Rectangle Width="3" Height="14" RadiusX="1.5" RadiusY="1.5" Margin="1,0" Fill="{DynamicResource Green}" />
                 </StackPanel>
             </Grid>
 
@@ -146,9 +143,9 @@
             <Grid x:Name="TimerView" Style="{StaticResource IslandView}" Width="210" Height="36">
                 <Grid Margin="16,0">
                     <TextBlock Style="{StaticResource Glyph}" HorizontalAlignment="Left" Text="&#xE916;"
-                               FontSize="15" Foreground="{StaticResource Orange}" />
+                               FontSize="15" Foreground="{DynamicResource Orange}" />
                     <TextBlock x:Name="TimerTextSmall" HorizontalAlignment="Right" VerticalAlignment="Center"
-                               FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Orange}"
+                               FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Orange}"
                                Typography.NumeralAlignment="Tabular" />
                 </Grid>
             </Grid>
@@ -157,9 +154,9 @@
             <Grid x:Name="StopwatchView" Style="{StaticResource IslandView}" Width="210" Height="36">
                 <Grid Margin="16,0">
                     <TextBlock Style="{StaticResource Glyph}" HorizontalAlignment="Left" Text="&#xE916;"
-                               FontSize="15" Foreground="{StaticResource Cyan}" />
+                               FontSize="15" Foreground="{DynamicResource Cyan}" />
                     <TextBlock x:Name="StopwatchTextSmall" HorizontalAlignment="Right" VerticalAlignment="Center"
-                               FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource Cyan}"
+                               FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource Cyan}"
                                Typography.NumeralAlignment="Tabular" />
                 </Grid>
             </Grid>
@@ -174,9 +171,9 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock x:Name="OsdIcon" Style="{StaticResource Glyph}" HorizontalAlignment="Left"
                                FontSize="16" Text="&#xE767;" />
-                    <Border Grid.Column="1" Height="6" Margin="8,0" CornerRadius="3" Background="#33FFFFFF"
+                    <Border Grid.Column="1" Height="6" Margin="8,0" CornerRadius="3" Background="{DynamicResource Fill}"
                             VerticalAlignment="Center" ClipToBounds="True">
-                        <Border x:Name="OsdFill" CornerRadius="3" Background="White" RenderTransformOrigin="0,0.5">
+                        <Border x:Name="OsdFill" CornerRadius="3" Background="{DynamicResource Ink}" RenderTransformOrigin="0,0.5">
                             <Border.RenderTransform>
                                 <ScaleTransform ScaleX="0" />
                             </Border.RenderTransform>
@@ -192,19 +189,19 @@
                 <Grid Margin="18,0">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                         <TextBlock x:Name="BatteryBolt" Style="{StaticResource Glyph}" Text="&#xE945;" FontSize="14"
-                                   Margin="0,0,8,0" Foreground="{StaticResource Green}" />
+                                   Margin="0,0,8,0" Foreground="{DynamicResource Green}" />
                         <TextBlock x:Name="BatteryTitle" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <TextBlock x:Name="BatteryPercent" FontSize="13" FontWeight="SemiBold" Margin="0,0,8,0"
                                    VerticalAlignment="Center" Typography.NumeralAlignment="Tabular" />
                         <Grid Width="30" Height="14" VerticalAlignment="Center">
-                            <Border Width="27" HorizontalAlignment="Left" BorderBrush="#80FFFFFF"
+                            <Border Width="27" HorizontalAlignment="Left" BorderBrush="{DynamicResource Secondary}"
                                     BorderThickness="1.2" CornerRadius="4" />
                             <Border x:Name="BatteryFill" HorizontalAlignment="Left" Margin="2.5,2.5,0,2.5"
-                                    Width="11" CornerRadius="2" Background="{StaticResource Green}" />
+                                    Width="11" CornerRadius="2" Background="{DynamicResource Green}" />
                             <Border HorizontalAlignment="Right" Width="2" Height="5" CornerRadius="0,1,1,0"
-                                    Background="#80FFFFFF" />
+                                    Background="{DynamicResource Secondary}" />
                         </Grid>
                     </StackPanel>
                 </Grid>
@@ -236,14 +233,14 @@
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
                     <Border x:Name="NotifIcon" Width="32" Height="32" CornerRadius="8" VerticalAlignment="Center"
-                            Background="{StaticResource ArtPlaceholder}" />
+                            Background="{DynamicResource ArtPlaceholder}" />
                     <StackPanel Grid.Column="1" Margin="11,0,8,0" VerticalAlignment="Center">
                         <TextBlock x:Name="NotifTitle" FontSize="13" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                         <TextBlock x:Name="NotifBody" FontSize="12" Margin="0,1,0,0" TextTrimming="CharacterEllipsis"
-                                   Foreground="{StaticResource Secondary}" />
+                                   Foreground="{DynamicResource Secondary}" />
                     </StackPanel>
                     <TextBlock x:Name="NotifApp" Grid.Column="2" FontSize="11" MaxWidth="90" Margin="0,11,0,0"
-                               VerticalAlignment="Top" TextTrimming="CharacterEllipsis" Foreground="{StaticResource Secondary}" />
+                               VerticalAlignment="Top" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Secondary}" />
                 </Grid>
             </Grid>
 
@@ -251,7 +248,7 @@
             <Grid x:Name="TimerDoneView" Style="{StaticResource IslandView}" Width="320" Height="44">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock x:Name="TimerDoneGlyph" Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="15"
-                               Margin="0,0,10,0" Foreground="{StaticResource Orange}" />
+                               Margin="0,0,10,0" Foreground="{DynamicResource Orange}" />
                     <TextBlock x:Name="TimerDoneText" Text="Timer finished" FontSize="14" FontWeight="SemiBold"
                                VerticalAlignment="Center" MaxWidth="240" TextTrimming="CharacterEllipsis" />
                 </StackPanel>
@@ -283,7 +280,7 @@
                                     VerticalAlignment="Center" Visibility="Collapsed">
                             <Ellipse x:Name="PrivacyChipDot" Width="7" Height="7" VerticalAlignment="Center" />
                             <TextBlock x:Name="PrivacyChipText" FontSize="11" Margin="6,0,0,0" MaxWidth="170"
-                                       Foreground="{StaticResource Secondary}" TextTrimming="CharacterEllipsis" />
+                                       Foreground="{DynamicResource Secondary}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
                     </Grid>
 
@@ -303,21 +300,21 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Border x:Name="MediaArtLarge" Width="64" Height="64" CornerRadius="14"
-                                    Background="{StaticResource ArtPlaceholder}">
+                                    Background="{DynamicResource ArtPlaceholder}">
                                 <TextBlock x:Name="MediaArtLargeFallback" Style="{StaticResource Glyph}" Text="&#xE8D6;"
-                                           FontSize="24" Foreground="{StaticResource Secondary}" />
+                                           FontSize="24" Foreground="{DynamicResource Secondary}" />
                             </Border>
                             <StackPanel Grid.Column="1" Margin="14,0,30,0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,3">
                                     <Ellipse x:Name="MediaAppDot" Width="6" Height="6" VerticalAlignment="Center"
-                                             Fill="{StaticResource Green}" />
+                                             Fill="{DynamicResource Green}" />
                                     <TextBlock x:Name="MediaAppName" FontSize="11" Margin="6,0,0,0"
-                                               Foreground="{StaticResource Secondary}" />
+                                               Foreground="{DynamicResource Secondary}" />
                                 </StackPanel>
                                 <TextBlock x:Name="MediaTitleLarge" FontSize="16" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" />
                                 <TextBlock x:Name="MediaArtistLarge" FontSize="13" Margin="0,2,0,0"
-                                           Foreground="{StaticResource Secondary}" TextTrimming="CharacterEllipsis" />
+                                           Foreground="{DynamicResource Secondary}" TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </Grid>
                         <Grid x:Name="ProgressRow" Grid.Row="1" Margin="0,12,0,0">
@@ -327,13 +324,13 @@
                                 <ColumnDefinition Width="42" />
                             </Grid.ColumnDefinitions>
                             <TextBlock x:Name="ElapsedText" FontSize="11" VerticalAlignment="Center"
-                                       Foreground="{StaticResource Secondary}" Typography.NumeralAlignment="Tabular" />
+                                       Foreground="{DynamicResource Secondary}" Typography.NumeralAlignment="Tabular" />
                             <!-- Transparent background makes the whole 14px band clickable for seeking. -->
                             <Grid x:Name="ProgressHit" Grid.Column="1" Height="14" Background="Transparent"
                                   MouseLeftButtonUp="OnProgressMouseUp">
-                                <Border Height="4" CornerRadius="2" Background="#33FFFFFF" VerticalAlignment="Center"
+                                <Border Height="4" CornerRadius="2" Background="{DynamicResource Fill}" VerticalAlignment="Center"
                                         ClipToBounds="True">
-                                    <Border x:Name="ProgressFill" CornerRadius="2" Background="White"
+                                    <Border x:Name="ProgressFill" CornerRadius="2" Background="{DynamicResource Ink}"
                                             RenderTransformOrigin="0,0.5">
                                         <Border.RenderTransform>
                                             <ScaleTransform ScaleX="0" />
@@ -342,7 +339,7 @@
                                 </Border>
                             </Grid>
                             <TextBlock x:Name="RemainingText" Grid.Column="2" FontSize="11" HorizontalAlignment="Right"
-                                       VerticalAlignment="Center" Foreground="{StaticResource Secondary}"
+                                       VerticalAlignment="Center" Foreground="{DynamicResource Secondary}"
                                        Typography.NumeralAlignment="Tabular" />
                         </Grid>
                         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
@@ -363,15 +360,15 @@
 
                     <StackPanel x:Name="ClockSection">
                         <TextBlock x:Name="BigTime" FontSize="36" FontWeight="Light" />
-                        <TextBlock x:Name="DateText" FontSize="13" Foreground="{StaticResource Secondary}" />
+                        <TextBlock x:Name="DateText" FontSize="13" Foreground="{DynamicResource Secondary}" />
                     </StackPanel>
 
-                    <Border Height="1" Background="#22FFFFFF" Margin="0,14,0,12" />
+                    <Border Height="1" Background="{DynamicResource Separator}" Margin="0,14,0,12" />
 
                     <Grid x:Name="TimerPresets">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="14"
-                                       Foreground="{StaticResource Orange}" />
+                                       Foreground="{DynamicResource Orange}" />
                             <TextBlock Text="Timer" FontSize="13" FontWeight="SemiBold" Margin="8,0,0,0"
                                        VerticalAlignment="Center" />
                         </StackPanel>
@@ -384,7 +381,7 @@
                             <Button Style="{StaticResource ChipButton}" Tag="60" Content="1h" Click="OnTimerPresetClick" />
                             <Button x:Name="StopwatchStartButton" Style="{StaticResource ChipButton}" Click="OnStopwatchStartClick"
                                     ToolTip="Start a stopwatch">
-                                <TextBlock Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="12" Foreground="{StaticResource Cyan}" />
+                                <TextBlock Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="12" Foreground="{DynamicResource Cyan}" />
                             </Button>
                         </StackPanel>
                     </Grid>
@@ -393,9 +390,9 @@
                     <Grid x:Name="StopwatchPanel" Margin="0,8,0,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="16"
-                                       Foreground="{StaticResource Cyan}" />
+                                       Foreground="{DynamicResource Cyan}" />
                             <TextBlock x:Name="StopwatchTextLarge" FontSize="24" FontWeight="SemiBold" Margin="10,0,0,0"
-                                       VerticalAlignment="Center" Foreground="{StaticResource Cyan}"
+                                       VerticalAlignment="Center" Foreground="{DynamicResource Cyan}"
                                        Typography.NumeralAlignment="Tabular" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -412,9 +409,9 @@
                     <Grid x:Name="TimerActivePanel">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <TextBlock Style="{StaticResource Glyph}" Text="&#xE916;" FontSize="16"
-                                       Foreground="{StaticResource Orange}" />
+                                       Foreground="{DynamicResource Orange}" />
                             <TextBlock x:Name="TimerTextLarge" FontSize="24" FontWeight="SemiBold" Margin="10,0,0,0"
-                                       VerticalAlignment="Center" Foreground="{StaticResource Orange}"
+                                       VerticalAlignment="Center" Foreground="{DynamicResource Orange}"
                                        Typography.NumeralAlignment="Tabular" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -435,7 +432,7 @@
                     <StackPanel x:Name="NotificationsPage">
                         <Grid x:Name="NotificationsToolbar" Margin="0,0,0,6">
                             <TextBlock x:Name="NotificationsCount" FontSize="12" VerticalAlignment="Center"
-                                       Foreground="{StaticResource Secondary}" />
+                                       Foreground="{DynamicResource Secondary}" />
                             <Button Style="{StaticResource ChipButton}" Content="Clear all" HorizontalAlignment="Right"
                                     Click="OnNotificationsClearClick" ToolTip="Clear all notifications (also from Windows' notification center)" />
                         </Grid>
@@ -443,7 +440,7 @@
                             <StackPanel x:Name="NotificationList" />
                         </ScrollViewer>
                         <TextBlock x:Name="NotificationsEmpty" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,6"
-                                   HorizontalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource Secondary}" />
+                                   HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource Secondary}" />
                         <Button x:Name="NotificationsSetup" Style="{StaticResource ChipButton}" Content="Set up…"
                                 HorizontalAlignment="Center" Margin="0,2,0,4" Click="OnIdentitySetupClick" />
                     </StackPanel>
@@ -464,25 +461,25 @@
                         </Grid>
                         <UniformGrid x:Name="CalendarWeekdays" Columns="7" />
                         <UniformGrid x:Name="CalendarDays" Columns="7" />
-                        <Border Height="1" Background="#22FFFFFF" Margin="0,8,0,8" />
+                        <Border Height="1" Background="{DynamicResource Separator}" Margin="0,8,0,8" />
                         <ScrollViewer x:Name="CalendarScroller" Style="{StaticResource SlimScroll}" MaxHeight="150">
                             <StackPanel x:Name="CalendarList" />
                         </ScrollViewer>
                         <TextBlock x:Name="CalendarEmpty" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,6"
-                                   HorizontalAlignment="Center" TextAlignment="Center" Foreground="{StaticResource Secondary}" />
+                                   HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource Secondary}" />
                     </StackPanel>
 
                     <!-- To-Do: add with Enter; rows are built in code (BuildTodoList). Clicks here never
                          collapse the island (they'd lose what's being typed). -->
                     <StackPanel x:Name="TodoPage" Background="Transparent" MouseLeftButtonUp="OnTypingPageMouseUp">
-                        <Border CornerRadius="12" Background="#1AFFFFFF" Height="36" Cursor="IBeam"
+                        <Border CornerRadius="12" Background="{DynamicResource Fill}" Height="36" Cursor="IBeam"
                                 MouseLeftButtonDown="OnTodoFieldMouseDown">
                             <Grid Margin="12,0">
                                 <TextBlock Style="{StaticResource Glyph}" Text="&#xE710;" FontSize="12"
-                                           HorizontalAlignment="Left" Foreground="{StaticResource Secondary}" />
+                                           HorizontalAlignment="Left" Foreground="{DynamicResource Secondary}" />
                                 <TextBlock x:Name="TodoPlaceholder" Text="Add a task" FontSize="13" Margin="24,0,0,0"
                                            VerticalAlignment="Center" IsHitTestVisible="False"
-                                           Foreground="{StaticResource Secondary}" />
+                                           Foreground="{DynamicResource Secondary}" />
                                 <TextBox x:Name="TodoInput" Style="{StaticResource IslandTextBox}" Margin="24,0,0,0"
                                          VerticalAlignment="Center" MaxLength="300"
                                          PreviewMouseLeftButtonDown="OnTypingBoxMouseDown"
@@ -494,15 +491,15 @@
                         </ScrollViewer>
                         <StackPanel x:Name="TodoEmpty" Margin="0,14,0,10">
                             <TextBlock Style="{StaticResource Glyph}" Text="&#xE73E;" FontSize="20"
-                                       Foreground="{StaticResource Green}" />
+                                       Foreground="{DynamicResource Green}" />
                             <TextBlock Text="All done" FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
                                        HorizontalAlignment="Center" />
                             <TextBlock Text="Type a task above and press Enter" FontSize="11" Margin="0,2,0,0"
-                                       HorizontalAlignment="Center" Foreground="{StaticResource Secondary}" />
+                                       HorizontalAlignment="Center" Foreground="{DynamicResource Secondary}" />
                         </StackPanel>
                         <Grid x:Name="TodoFooter" Margin="0,6,0,0">
                             <TextBlock x:Name="TodoCount" FontSize="12" VerticalAlignment="Center"
-                                       Foreground="{StaticResource Secondary}" />
+                                       Foreground="{DynamicResource Secondary}" />
                             <Button x:Name="TodoClearDone" Style="{StaticResource ChipButton}" Content="Clear completed"
                                     HorizontalAlignment="Right" Click="OnTodoClearDoneClick" />
                         </Grid>
@@ -510,11 +507,11 @@
 
                     <!-- Notes: one scratch pad, saved as you type (NotesService). -->
                     <StackPanel x:Name="NotesPage" Background="Transparent" MouseLeftButtonUp="OnTypingPageMouseUp">
-                        <Border CornerRadius="14" Background="#14FFFFFF" Padding="12,10" Height="168" Cursor="IBeam"
+                        <Border CornerRadius="14" Background="{DynamicResource Fill}" Padding="12,10" Height="168" Cursor="IBeam"
                                 MouseLeftButtonDown="OnNoteFieldMouseDown">
                             <Grid>
                                 <TextBlock x:Name="NotePlaceholder" Text="Jot something down…" FontSize="13"
-                                           IsHitTestVisible="False" Foreground="{StaticResource Secondary}" />
+                                           IsHitTestVisible="False" Foreground="{DynamicResource Secondary}" />
                                 <TextBox x:Name="NoteBox" Style="{StaticResource IslandTextBox}" AcceptsReturn="True"
                                          AcceptsTab="True" TextWrapping="Wrap" MaxLength="20000"
                                          PreviewMouseLeftButtonDown="OnTypingBoxMouseDown"
@@ -523,7 +520,7 @@
                         </Border>
                         <Grid Margin="0,6,0,0">
                             <TextBlock x:Name="NoteStatus" FontSize="11" VerticalAlignment="Center"
-                                       Foreground="{StaticResource Secondary}" />
+                                       Foreground="{DynamicResource Secondary}" />
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Style="{StaticResource ChipButton}" Content="Copy" Click="OnNoteCopyClick"
                                         ToolTip="Copy the note to the clipboard" />
@@ -539,7 +536,7 @@
                         <StackPanel>
                             <Grid x:Name="ShelfToolbar" Margin="0,0,0,8">
                                 <TextBlock x:Name="ShelfCount" FontSize="12" VerticalAlignment="Center"
-                                           Foreground="{StaticResource Secondary}" />
+                                           Foreground="{DynamicResource Secondary}" />
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                                     <Button x:Name="ShelfDragAll" Style="{StaticResource ChipButton}" Content="Drag all"
                                             ToolTip="Drag every file on the shelf somewhere" />
@@ -551,23 +548,23 @@
                                 <WrapPanel x:Name="ShelfItems" />
                             </ScrollViewer>
                             <Grid x:Name="ShelfEmpty" Height="104">
-                                <Rectangle RadiusX="14" RadiusY="14" Stroke="#55FFFFFF" StrokeThickness="1.5"
+                                <Rectangle RadiusX="14" RadiusY="14" Stroke="{DynamicResource Tertiary}" StrokeThickness="1.5"
                                            StrokeDashArray="4 3" />
                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock Style="{StaticResource Glyph}" Text="&#xE896;" FontSize="20"
-                                               Foreground="{StaticResource Secondary}" />
+                                               Foreground="{DynamicResource Secondary}" />
                                     <TextBlock Text="Drop files here" FontSize="13" FontWeight="SemiBold" Margin="0,8,0,0"
                                                HorizontalAlignment="Center" />
                                     <TextBlock Text="Drag files onto the island to keep them handy" FontSize="11"
                                                Margin="0,2,0,0" HorizontalAlignment="Center"
-                                               Foreground="{StaticResource Secondary}" />
+                                               Foreground="{DynamicResource Secondary}" />
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
                         <!-- Shown while files are dragged over the island. -->
                         <Grid x:Name="ShelfDropOverlay" Visibility="Collapsed" IsHitTestVisible="False">
                             <Rectangle x:Name="ShelfDropRect" RadiusX="14" RadiusY="14" StrokeThickness="2"
-                                       StrokeDashArray="4 3" Fill="#B0000000" Stroke="White" />
+                                       StrokeDashArray="4 3" Fill="#B0000000" Stroke="{DynamicResource Ink}" />
                             <TextBlock x:Name="ShelfDropText" Text="Drop to add to the shelf" FontSize="13"
                                        FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
@@ -588,20 +585,20 @@
                                 <TextBlock x:Name="WeatherCondition" FontSize="15" FontWeight="SemiBold"
                                            TextTrimming="CharacterEllipsis" />
                                 <TextBlock x:Name="WeatherDetail" FontSize="12" Margin="0,2,0,0"
-                                           Foreground="{StaticResource Secondary}" TextTrimming="CharacterEllipsis" />
+                                           Foreground="{DynamicResource Secondary}" TextTrimming="CharacterEllipsis" />
                                 <TextBlock x:Name="WeatherPlaceText" FontSize="11" Margin="0,2,0,0"
-                                           Foreground="{StaticResource Secondary}" TextTrimming="CharacterEllipsis" />
+                                           Foreground="{DynamicResource Secondary}" TextTrimming="CharacterEllipsis" />
                             </StackPanel>
                         </Grid>
                         <UniformGrid x:Name="WeatherHours" Rows="1" Margin="0,14,0,0" />
-                        <Border Height="1" Background="#22FFFFFF" Margin="0,12,0,8" />
+                        <Border Height="1" Background="{DynamicResource Separator}" Margin="0,12,0,8" />
                         <StackPanel x:Name="WeatherDays" />
                         <TextBlock x:Name="WeatherProblemText" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0"
-                                   Foreground="{StaticResource Secondary}" Visibility="Collapsed" />
+                                   Foreground="{DynamicResource Secondary}" Visibility="Collapsed" />
                         <!-- Required attribution: Open-Meteo data is licensed CC BY 4.0; place names from
                              OpenStreetMap (ODbL) when "My location" is used (UpdateWeather). -->
                         <TextBlock x:Name="WeatherAttribution" Text="Weather data by Open-Meteo.com" FontSize="10" Margin="0,6,0,0"
-                                   HorizontalAlignment="Right" Foreground="{StaticResource Secondary}" Opacity="0.7" />
+                                   HorizontalAlignment="Right" Foreground="{DynamicResource Secondary}" Opacity="0.7" />
                     </StackPanel>
 
                     <!-- Quick-launch apps; tiles are built in code from the QuickApps setting. -->
@@ -618,13 +615,13 @@
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
                                 <!-- Shows the wallpaper's (often animated) preview; brush is only attached while expanded. -->
                                 <Border x:Name="WallpaperThumb" Width="48" Height="48" CornerRadius="10"
-                                        Background="{StaticResource ArtPlaceholder}">
+                                        Background="{DynamicResource ArtPlaceholder}">
                                     <TextBlock x:Name="WallpaperThumbFallback" Style="{StaticResource Glyph}"
-                                               Text="&#xE8B9;" FontSize="16" Foreground="{StaticResource Secondary}" />
+                                               Text="&#xE8B9;" FontSize="16" Foreground="{DynamicResource Secondary}" />
                                 </Border>
                                 <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                     <TextBlock Text="WALLPAPER" FontSize="9" FontWeight="SemiBold"
-                                               Foreground="{StaticResource Secondary}" />
+                                               Foreground="{DynamicResource Secondary}" />
                                     <TextBlock x:Name="WallpaperTitle" Text="Wallpaper Engine" FontSize="13"
                                                FontWeight="SemiBold" MaxWidth="220" TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
@@ -655,7 +652,7 @@
                         HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,12,0"
                         Click="OnSettingsClick" ToolTip="Settings (or right-click the island)">
                     <TextBlock Style="{StaticResource Glyph}" Text="&#xE713;" FontSize="14"
-                               Foreground="{StaticResource Secondary}" />
+                               Foreground="{DynamicResource Secondary}" />
                 </Button>
             </Grid>
 

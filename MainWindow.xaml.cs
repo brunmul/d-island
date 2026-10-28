@@ -107,6 +107,13 @@ public partial class MainWindow : Window
     private readonly DropShadowEffect _shadow = new() { BlurRadius = 22, ShadowDepth = 3, Direction = 270, Color = Colors.Black };
     private Color? _accent;
 
+    /// <summary>Theme brushes shared through App.xaml; their colors change in place when the theme does.</summary>
+    private Brush Ink => (Brush)FindResource("Ink");
+    private Brush Tertiary => (Brush)FindResource("Tertiary");
+
+    /// <summary>The notification behind the current alert: a click on the alert opens its app.</summary>
+    private IslandNotification? _alertNotification;
+
     public MainWindow(AppSettings settings)
     {
         StartupMark("window constructor");
@@ -513,6 +520,12 @@ public partial class MainWindow : Window
             // Debug aid: "timer,stopwatch" starts those activities (to see the second-activity bubble).
             if (activities.Contains("timer")) _timer.Start(TimeSpan.FromMinutes(5));
             if (activities.Contains("stopwatch")) _stopwatch.Start();
+        }
+        if (Environment.GetEnvironmentVariable("DISLAND_THEME") is { Length: > 0 } themeName)
+        {
+            // Debug aid: wear this theme for this run only (in memory, never saved by this hook).
+            ThemeService.ApplyToSettings(ThemeService.Find(themeName), _settings);
+            ApplySettings();
         }
         if (Environment.GetEnvironmentVariable("DISLAND_ICS") is { Length: > 0 } ics)
         {
@@ -981,7 +994,7 @@ public partial class MainWindow : Window
                     {
                         Width = 6,
                         Height = 6,
-                        Fill = selected ? Brushes.White : new SolidColorBrush(Color.FromArgb(0x55, 0xFF, 0xFF, 0xFF)),
+                        Fill = selected ? Ink : Tertiary,
                     }
                     : new StackPanel
                     {
@@ -993,7 +1006,7 @@ public partial class MainWindow : Window
                                 Style = (Style)FindResource("Glyph"),
                                 Text = PageGlyph(page),
                                 FontSize = 13,
-                                Foreground = selected ? Brushes.White : secondary,
+                                Foreground = selected ? Ink : secondary,
                             },
                             new TextBlock
                             {
@@ -1007,7 +1020,7 @@ public partial class MainWindow : Window
                         },
                     },
             };
-            if (!dots && selected) button.Background = new SolidColorBrush(Color.FromArgb(0x1F, 0xFF, 0xFF, 0xFF));
+            if (!dots && selected) button.Background = (Brush)FindResource("Fill");
             var target = page;
             button.Click += (_, _) => ShowPage(target, animate: true);
             PageTabs.Children.Add(button);
@@ -1857,15 +1870,25 @@ public partial class MainWindow : Window
         // ApplyTheme is called on many events (media updates, window events); skip rebuilding brushes
         // and restarting animations when nothing that affects the look has changed.
         var s = _settings;
+        var theme = ThemeService.Find(s.Theme);
         var key = string.Join('|', accent, strength, s.Material, s.BackgroundTint, s.BackgroundOpacity, s.GlassTint,
             s.GlassShine, s.OutlineWidth, s.OutlineOpacity, s.ShadowStrength, s.TextShadow, s.AccentSource,
-            _media.Current?.Accent, _osdDimmed);
+            _media.Current?.Accent, _osdDimmed, theme.Name, ThemeService.Stamp);
         if (key == _themeKey) return;
         _themeKey = key;
 
+        // Palette: the shared brushes (App.xaml) change color in place, so every view follows at once.
+        ThemeService.ApplyPalette(theme.Colors);
+        var surface = ThemeService.ParseColor(theme.Colors.Surface, Colors.Black);
+        var ink = ThemeService.ParseColor(theme.Colors.Ink, Colors.White);
+        _textShadow.Color = ThemeService.ParseColor(theme.Colors.TextShadow, Colors.Black);
+
         // Background fill
         var tint = Math.Clamp(_settings.BackgroundTint, 0, 0.6);
-        var baseColor = accent is { } a ? ColorTools.Mix(Colors.Black, a, tint) : Colors.Black;
+        var baseColor = accent is { } a ? ColorTools.Mix(surface, a, tint) : surface;
+        var bubbleBrush = new SolidColorBrush(Color.FromArgb(0xF0, baseColor.R, baseColor.G, baseColor.B));
+        bubbleBrush.Freeze();
+        ActivityBubbleBack.Fill = bubbleBrush; // the second-activity bubble wears the same surface
         var materialAlpha = _settings.Material switch
         {
             IslandMaterial.Translucent => Math.Clamp(_settings.BackgroundOpacity, 0.15, 1),
@@ -1898,7 +1921,7 @@ public partial class MainWindow : Window
         }
         else if (outline > 0)
         {
-            var c = accent ?? Colors.White;
+            var c = theme.Colors.Outline is { Length: > 0 } outlineColor ? ThemeService.ParseColor(outlineColor, ink) : accent ?? ink;
             c.A = (byte)Math.Round(255 * Math.Clamp(_settings.OutlineOpacity, 0, 1) * Math.Max(strength, 0.35));
             var stroke = new SolidColorBrush(c);
             stroke.Freeze();
@@ -1917,13 +1940,13 @@ public partial class MainWindow : Window
         PillShape.Effect = shadow > 0.01 ? _shadow : null;
 
         // Accents
-        var levelBrush = accent is { } la ? new SolidColorBrush(la) : Brushes.White;
+        var levelBrush = new SolidColorBrush(accent ?? ink);
         levelBrush.Freeze();
         ProgressFill.Background = levelBrush;
         if (!_osdDimmed) OsdFill.Background = levelBrush;
 
         var mediaColor = _settings.AccentSource == AccentSource.Monochrome
-            ? Colors.White
+            ? ink
             : accent ?? _media.Current?.Accent ?? DefaultMediaAccent;
         var mediaBrush = new SolidColorBrush(mediaColor);
         mediaBrush.Freeze();
@@ -1951,6 +1974,16 @@ public partial class MainWindow : Window
         if (!_state.IsExpanded && _state.Transient == IslandView.TimerDone)
         {
             _state.DismissTransient(); // also silences a ringing alarm
+            return;
+        }
+
+        // A click on another app's notification opens that app, like tapping a banner on iPhone.
+        if (!_state.IsExpanded && _state.Transient == IslandView.Notification && _settings.ClickOpensNotificationApp
+            && _alertNotification?.AppId is { Length: > 0 } notificationApp)
+        {
+            _hoverSuppressed = true;
+            _state.DismissTransient();
+            AppActivator.Activate(notificationApp);
             return;
         }
 
@@ -2108,7 +2141,7 @@ public partial class MainWindow : Window
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(6, 6, 6, 6),
                 VerticalAlignment = VerticalAlignment.Center,
-                Foreground = item.Done ? secondary : Brushes.White,
+                Foreground = item.Done ? secondary : Ink,
                 TextDecorations = item.Done ? TextDecorations.Strikethrough : null,
             };
             Grid.SetColumn(text, 1);
@@ -2370,7 +2403,7 @@ public partial class MainWindow : Window
         _osdDimmed = dimmed;
         OsdFill.Background = dimmed
             ? (Brush)FindResource("Secondary")
-            : _accent is { } accent ? new SolidColorBrush(accent) : Brushes.White;
+            : _accent is { } accent ? new SolidColorBrush(accent) : Ink;
 
         var fill = (ScaleTransform)OsdFill.RenderTransform;
         if (_currentView == OsdView)
@@ -2413,7 +2446,7 @@ public partial class MainWindow : Window
         var (title, accent, priority) = alert switch
         {
             BatteryAlert.PluggedIn => ("Charging", green, TransientPriority.Battery),
-            BatteryAlert.Unplugged => ("On battery", low ? red : (Brush)Brushes.White, TransientPriority.Battery),
+            BatteryAlert.Unplugged => ("On battery", low ? red : Ink, TransientPriority.Battery),
             BatteryAlert.Low => ("Low battery", orange, TransientPriority.LowBattery),
             _ => ("Battery critically low", red, TransientPriority.LowBattery),
         };
@@ -2452,7 +2485,7 @@ public partial class MainWindow : Window
         // Hidden: nothing to show, and animating an invisible window would only cost CPU.
         if (IslandHidden || !_state.CanShowTransient(priority)) return;
         InfoGlyph.Text = glyph;
-        InfoGlyph.Foreground = glyphBrush ?? Brushes.White;
+        InfoGlyph.Foreground = glyphBrush ?? Ink;
         InfoTitle.Text = title;
         InfoDetail.Text = detail ?? "";
         InfoDetail.Foreground = detailBrush ?? (Brush)FindResource("Secondary");
@@ -2572,6 +2605,8 @@ public partial class MainWindow : Window
         NotifBody.Text = hide ? "New notification" : FirstLine(n.Body);
         NotifBody.Visibility = NotifBody.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
         NotifApp.Text = hide ? "now" : n.AppName;
+        _alertNotification = n;
+        NotificationView.Cursor = n.AppId is { Length: > 0 } && _settings.ClickOpensNotificationApp ? Cursors.Hand : null;
         var seconds = Math.Clamp(_settings.NotificationSeconds, 2, 15);
         SetAlertPage(ExpandedPage.Notifications, seconds);
         _state.ShowTransient(IslandView.Notification, TransientPriority.Notification, TimeSpan.FromSeconds(seconds));
@@ -2676,7 +2711,7 @@ public partial class MainWindow : Window
                 if (n.AppId is not { Length: > 0 } appId) return;
                 _hoverSuppressed = true;
                 SetExpanded(false);
-                QuickAppsService.Launch(appId);
+                AppActivator.Activate(appId);
             };
             NotificationList.Children.Add(row);
         }
@@ -2763,7 +2798,7 @@ public partial class MainWindow : Window
                 Width = 22,
                 Height = 22,
                 Fill = isToday ? accent : isSelected ? new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF)) : null,
-                Stroke = isSelected && isToday ? Brushes.White : null,
+                Stroke = isSelected && isToday ? Ink : null,
                 StrokeThickness = 1.5,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -2773,7 +2808,7 @@ public partial class MainWindow : Window
                 Text = date.Day.ToString(),
                 FontSize = 11,
                 FontWeight = isToday ? FontWeights.Bold : FontWeights.Normal,
-                Foreground = isToday ? Brushes.White : inMonth ? Brushes.White : secondary,
+                Foreground = isToday ? Ink : inMonth ? Ink : secondary,
                 Opacity = inMonth || isToday ? 1 : 0.5,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Top,
@@ -2925,7 +2960,7 @@ public partial class MainWindow : Window
         if (_page != ExpandedPage.Shelf) ShowPage(ExpandedPage.Shelf, animate: true);
         if (ShelfDropOverlay.Visibility != Visibility.Visible)
         {
-            ShelfDropRect.Stroke = _accent is { } accent ? new SolidColorBrush(accent) : Brushes.White;
+            ShelfDropRect.Stroke = _accent is { } accent ? new SolidColorBrush(accent) : Ink;
             ShelfDropOverlay.Visibility = Visibility.Visible;
         }
     }

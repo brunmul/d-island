@@ -67,6 +67,9 @@ public enum PageNavigation
 
 public sealed class AppSettings
 {
+    // ---- theme (Services\IslandTheme.cs): its colors apply while chosen; its shape, material and font were copied below
+    public string Theme { get; set; } = IslandTheme.ClassicName;
+
     // ---- shape & material
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public IslandMode Mode { get; set; } = IslandMode.DynamicIsland;
@@ -262,6 +265,9 @@ public sealed class AppSettings
     /// <summary>Only the app name in the alert, not the message text.</summary>
     public bool NotificationsHideText { get; set; }
 
+    /// <summary>Clicking a notification alert brings its app to the front (Services\AppActivator.cs).</summary>
+    public bool ClickOpensNotificationApp { get; set; } = true;
+
     public double NotificationSeconds { get; set; } = 5;
 
     // ---- weather
@@ -303,6 +309,7 @@ public sealed class AppSettings
     public void ResetToDefaults()
     {
         var d = new AppSettings();
+        Theme = d.Theme;
         Mode = d.Mode;
         Material = d.Material;
         BackgroundOpacity = d.BackgroundOpacity;

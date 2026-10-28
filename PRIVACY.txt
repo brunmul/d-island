@@ -46,6 +46,7 @@ These services receive your IP address as part of any internet request, and hand
 3. WHAT IS STORED, AND WHERE
 
 - %AppData%\DIsland\settings.json: your settings, including your chosen city, iCal links, quick apps and alarms.
+- %AppData%\DIsland\themes\: theme files you save or add (colors, shape, material and font; no personal content).
 - %AppData%\DIsland\error.log: technical error details if something goes wrong (no personal content is written on purpose).
 - %LocalAppData%\DIsland\shelf.json: the file locations on your shelf.
 - %LocalAppData%\DIsland\notes.json: your to-do list and notes.

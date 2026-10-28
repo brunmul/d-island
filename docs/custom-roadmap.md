@@ -27,19 +27,53 @@ redistribution, y compris commerciale, à ces conditions :
   écraser par l'officiel au bout d'un jour. Options : désactiver l'updater, ou le pointer sur le fork
   (`brunmul/d-island`, nom d'asset `Atoll-Setup-…`). Les chaînes « D-Island updated »
   (`MainWindow.xaml.cs` l. 591) et « What's new in D-Island » (`WhatsNewWindow.cs` l. 94) vont avec.
-- **Mutex et dossiers partagés avec D-Island officiel.** `App.xaml.cs` : `Local\DIsland.SingleInstance`
-  (l. 13) et `%AppData%\DIsland` (l. 152) ; `%LocalAppData%\DIsland` pour shelf, notes, artwork. Tant
-  que ça ne change pas, Atoll et D-Island ne tournent pas en même temps et partagent `settings.json`.
-  Changer ces noms = prévoir une migration des réglages.
-- **Identité de paquet** (`app.manifest`, `Identity\AppxManifest.xml`, `Identity\setup-identity.ps1`) :
-  `CN=D-Island Dev`, `packageName="DIsland"`. Nécessaire pour les notifications et le calendrier
-  Windows. À renommer aussi si on veut cohabiter avec l'officiel.
+- **Dossiers de données partagés avec D-Island officiel.** Le mutex est maintenant propre à Atoll
+  (`Local\Atoll.SingleInstance`, `App.xaml.cs`), donc Atoll et D-Island peuvent tourner en même temps
+  (deux îlots superposés), mais ils lisent et écrivent le même `%AppData%\DIsland\settings.json` et les
+  mêmes `%LocalAppData%\DIsland` (shelf, notes, artwork). D-Island ignore les clés qu'il ne connaît pas
+  (`Theme`, `ClickOpensNotificationApp`), donc rien ne casse, mais un changement de thème dans Atoll
+  change aussi la forme et le matériau de D-Island. Renommer ces dossiers = prévoir une migration.
+- **Identité de paquet** : renommée le 28/10 en `Atoll` / `CN=Atoll Dev` (`app.manifest`,
+  `Identity\AppxManifest.xml`, `Identity\setup-identity.ps1`, désinstallation dans l'installeur). Il
+  faut donc enregistrer le paquet Atoll une fois (Settings > Notifications > Set up…) pour que la
+  version custom lise les notifications ; le paquet `DIsland` de l'officiel reste intact. Le script
+  prend d'abord makeappx / signtool du Windows Kit installé (le NuGet avait planté ici), accepte
+  `-MakeAppx` / `-SignTool`, et retente `Add-AppxPackage` depuis `%UserProfile%` si `%LocalAppData%`
+  est refusé (0x80073CF0 / 0x80070003 vus sur ce PC).
 - **Installeur** : l'`AppId` a été changé pour qu'Atoll ne désinstalle pas D-Island, mais
   `installer\DIsland.iss` et `installer\HowToUse.*` contiennent encore des textes « D-Island », et
   `build-installer.ps1` dessine toujours la pilule de D-Island comme illustration du wizard
   (`New-PillImage`).
 
 ## 2. Chantier A : système de thèmes
+
+### Fait le 28 octobre
+
+- **Modèle** `Services/IslandTheme.cs` : `IslandTheme` = `Colors` (Surface, Ink, InkSecondary,
+  InkTertiary, Accent, Success, Warning, Danger, Info, Focus, Placeholder, Fill, FillHover,
+  FillPressed, Separator, Outline, TextShadow), `Shape`, `Material`, `Typography`, `AccentSource`.
+  Sérialisable en JSON ; fichiers utilisateur dans `%AppData%\DIsland\themes\*.json` (un fichier du même
+  nom qu'un thème intégré le remplace).
+- **Service** `Services/ThemeService.cs` : liste (intégrés + dossier), `ApplyToSettings` (copie forme,
+  matériau, police et source d'accent dans `AppSettings` quand on choisit le thème), `ApplyPalette`
+  (pousse les couleurs dans les brosses partagées de `App.xaml`), `FromSettings` + `Export` (sauver le
+  look courant en JSON).
+- **Mécanique des couleurs** : les brosses `Ink`, `Secondary`, `Tertiary`, `Green`, `Orange`, `Red`,
+  `Cyan`, `Purple`, `ArtPlaceholder`, `Fill`, `FillHover`, `FillPressed`, `Separator` vivent dans
+  `App.xaml`, ne sont jamais gelées, et sont référencées en `DynamicResource` dans tout le XAML
+  (`StaticResource` les faisait geler : le texte restait blanc en thème clair). `ApplyTheme()` change
+  leur couleur en place ; le code qui fait `FindResource("…")` suit sans reconstruction. La surface
+  (`Colors.Surface`) remplace le noir du fond, l'encre remplace `Brushes.White`.
+- **Thèmes intégrés** : `Classic` (rendu identique à D-Island 1.2.1, vérifié par capture),
+  `Arcos Clair` et `Arcos Sombre` (tokens du design system Arcos : surface `#f5f4ed` / `#1f1e1d`, encre
+  à 85 %, accent argile `#d97757`, contour 1 px à 18 %, arrondi 55 %, opaque, sans ombre ni verre,
+  teintes `folder-*` pour succès / avertissement / info / focus).
+- **Réglages** : section THEME en tête (choix, description, « Save current look as theme », « Reload
+  themes », « Open themes folder ») ; `AppSettings.Theme`.
+- **Hook de debug** `DISLAND_THEME=<nom>` : porte ce thème pour la session, sans l'enregistrer.
+- **Reste à faire** : la fenêtre Réglages garde sa palette sombre ; les icônes météo gardent leurs
+  couleurs ; le relief Arcos des cases teintées et la typo 13 px ne sont pas transposés ; le « nouveau
+  visuel » au-delà de la palette (formes, mise en page des pages) attend les références de Bruno.
 
 ### Où sont les couleurs, formes et matériaux aujourd'hui
 
@@ -95,6 +129,21 @@ redistribution, y compris commerciale, à ces conditions :
 - Formes alternatives au-delà de pilule / notch ? (contrainte du clip GPU ci-dessus)
 
 ## 3. Chantier B : actions Claude / GPT sur le presse-papiers
+
+### Fait le 28 octobre : clic sur une alerte de notification
+
+- `Services/AppActivator.cs` : `Activate(appId)` essaie dans l'ordre (1) une fenêtre visible dont la
+  propriété `System.AppUserModel.ID` correspond (`SHGetPropertyStoreForWindow`), restaurée et mise au
+  premier plan ; (2) pour un id packagé (`Package_hash!App`), `IApplicationActivationManager`
+  (`ActivateApplication`) ; (3) un process nommé comme le dernier segment de l'id
+  (`com.squirrel.Discord.Discord` → Discord) ; (4) sinon `shell:AppsFolder` comme les quick apps.
+- `MainWindow.xaml.cs` : `_alertNotification` mémorise la notification affichée ; un clic sur l'îlot
+  replié pendant l'alerte (`OnRootMouseLeftButtonUp`) ferme l'alerte et appelle `AppActivator`. Le
+  curseur devient une main. La page Notifications étendue utilise aussi `AppActivator`.
+- Réglage `ClickOpensNotificationApp` (activé par défaut) dans Settings > Notifications.
+- **Non testé avec de vraies notifications** : la version Debug n'a pas d'identité tant que le paquet
+  Atoll n'est pas enregistré, et D-Island officiel tournait pendant le développement. Cas à tester :
+  Claude (`Claude_pzs8sxrjxfjjc!Claude`), Discord, Slack, WhatsApp.
 
 ### Où sont les alertes transitoires et le presse-papiers
 
@@ -155,7 +204,12 @@ namespace `DIsland`, `DIsland.exe`, mutex, dossiers de données, identité de pa
 
 ## 5. Prochaines étapes
 
-1. Créer le fork `brunmul/d-island` sur GitHub, pointer `origin` dessus, pousser `custom-base`.
-2. Choisir le nom et l'icône définitifs.
-3. Décider du sort de l'updater (désactiver ou re-pointer) avant de construire un installeur.
-4. Répondre aux questions des sections 2 et 3, puis démarrer par le chantier le plus utile.
+1. ~~Créer le fork `brunmul/d-island`~~ : fait, `origin` = fork, `upstream` = H7gamer.
+2. Tester le clic sur une notification avec de vraies apps : arrêter D-Island, enregistrer le paquet
+   Atoll (Settings > Notifications > Set up…), lancer Atoll, provoquer une notification Claude /
+   Discord / Slack / WhatsApp.
+3. Références visuelles de Bruno pour le « nouveau visuel » au-delà de la palette Arcos (formes, pages,
+   relief des cases, typographie), puis dessiner.
+4. Choisir le nom et l'icône définitifs.
+5. Décider du sort de l'updater (désactiver ou re-pointer) avant de construire un installeur.
+6. Chantier IA : répondre aux questions de la section 3, puis `AssistantService`.

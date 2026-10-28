@@ -6,6 +6,23 @@
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
 
+        <!-- Theme palette (Services\ThemeService.ApplyPalette changes these colors in place, so they are
+             never frozen; styles reference them through DynamicResource so sealing a style can't freeze them).
+             The values here are the Classic theme; a chosen theme overrides them at startup. -->
+        <SolidColorBrush x:Key="Ink" Color="#FFFFFFFF" />
+        <SolidColorBrush x:Key="Secondary" Color="#99FFFFFF" />
+        <SolidColorBrush x:Key="Tertiary" Color="#55FFFFFF" />
+        <SolidColorBrush x:Key="Green" Color="#FF30D158" />
+        <SolidColorBrush x:Key="Orange" Color="#FFFF9F0A" />
+        <SolidColorBrush x:Key="Red" Color="#FFFF453A" />
+        <SolidColorBrush x:Key="Cyan" Color="#FF64D2FF" />
+        <SolidColorBrush x:Key="Purple" Color="#FFBF5AF2" />
+        <SolidColorBrush x:Key="ArtPlaceholder" Color="#FF2C2C2E" />
+        <SolidColorBrush x:Key="Fill" Color="#1FFFFFFF" />
+        <SolidColorBrush x:Key="FillHover" Color="#26FFFFFF" />
+        <SolidColorBrush x:Key="FillPressed" Color="#40FFFFFF" />
+        <SolidColorBrush x:Key="Separator" Color="#22FFFFFF" />
+
         <FontFamily x:Key="IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
 
         <Style x:Key="Glyph" TargetType="TextBlock">
@@ -15,7 +32,7 @@
         </Style>
 
         <Style x:Key="IconButton" TargetType="Button">
-            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Foreground" Value="{DynamicResource Ink}" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Focusable" Value="False" />
             <Setter Property="Cursor" Value="Hand" />
@@ -29,10 +46,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#26FFFFFF" />
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource FillHover}" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#40FFFFFF" />
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource FillPressed}" />
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter Property="Opacity" Value="0.35" />
@@ -44,7 +61,7 @@
         </Style>
 
         <Style x:Key="ChipButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
-            <Setter Property="Background" Value="#1FFFFFFF" />
+            <Setter Property="Background" Value="{DynamicResource Fill}" />
             <Setter Property="Padding" Value="10,5" />
             <Setter Property="Margin" Value="5,0,0,0" />
             <Setter Property="FontSize" Value="12" />

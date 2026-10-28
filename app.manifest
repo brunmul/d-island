@@ -4,7 +4,7 @@
   <!-- Links the exe to the sparse package (Identity\AppxManifest.xml) once that is registered with this
        folder as its external location; without the registration this is ignored. Must match the
        manifest's Identity Name / Publisher and Application Id. -->
-  <msix xmlns="urn:schemas-microsoft-com:msix.v1" publisher="CN=D-Island Dev" packageName="DIsland" applicationId="DIsland" />
+  <msix xmlns="urn:schemas-microsoft-com:msix.v1" publisher="CN=Atoll Dev" packageName="Atoll" applicationId="Atoll" />
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
     <application>
       <!-- Windows 10 / 11 -->

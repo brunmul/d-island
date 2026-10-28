@@ -75,6 +75,9 @@ public partial class SettingsWindow : Window
         _navSelected = null;
         var s = _settings;
 
+        var theme = Section("THEME");
+        ThemeRow(theme);
+
         var style = Section("STYLE");
         Choice(style, "Shape", new[] { (IslandMode.DynamicIsland, "Dynamic Island"), (IslandMode.Notch, "Notch") },
             () => s.Mode, v => s.Mode = v);
@@ -174,6 +177,7 @@ public partial class SettingsWindow : Window
         IdentityStatus(identity);
         Check(identity, "Show other apps' notifications in the island", () => s.NotificationsEnabled, v => s.NotificationsEnabled = v);
         Check(identity, "Hide the message text (show only which app)", () => s.NotificationsHideText, v => s.NotificationsHideText = v);
+        Check(identity, "Clicking a notification alert opens its app", () => s.ClickOpensNotificationApp, v => s.ClickOpensNotificationApp = v);
         Slider(identity, "Notification alerts", 2, 12, 0.5, () => s.NotificationSeconds, v => s.NotificationSeconds = v, v => $"{v:0.0} s");
         Note(identity, "Alerts are held back while Do Not Disturb is on, like Windows does.");
 
@@ -853,6 +857,70 @@ public partial class SettingsWindow : Window
         ToolTip = tooltip,
         Content = new TextBlock { Style = (Style)FindResource("Glyph"), Text = glyph, FontSize = 11 },
     };
+
+    /// <summary>Theme choice, plus saving the current look as a theme file and reloading the folder.</summary>
+    private void ThemeRow(Panel panel)
+    {
+        var current = ThemeService.Find(_settings.Theme);
+        Choice(panel, "Theme", ThemeService.All.Select(t => (t.Name, t.Name)).ToArray(), () => current.Name, name =>
+        {
+            ThemeService.ApplyToSettings(ThemeService.Find(name), _settings);
+            // The sections below show the theme's shape, material and font: rebuild once this click is done.
+            Dispatcher.InvokeAsync(Build, DispatcherPriority.Background);
+        });
+        var about = current.Description ?? "";
+        if (current.Author is { Length: > 0 } author) about += (about.Length > 0 ? "  ·  " : "") + author;
+        if (current.File is { } file) about += (about.Length > 0 ? "  ·  " : "") + System.IO.Path.GetFileName(file);
+        if (about.Length > 0) Note(panel, about);
+        Note(panel, "A theme sets the colors, shape, material and font at once; the sections below then adjust it. " +
+                    "Your own themes are JSON files in " + ThemeService.Folder + ": save the current look there, then edit the file.");
+
+        var row = new WrapPanel { Margin = new Thickness(0, 2, 0, 4) };
+        var name = new TextBox
+        {
+            Text = current.BuiltIn ? "My theme" : current.Name,
+            Width = 150,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(0, 0, 8, 6),
+            ToolTip = "Name of the theme to save",
+        };
+        row.Children.Add(name);
+        void Chip(string text, Action click)
+        {
+            var button = new Button { Style = (Style)FindResource("ChipButton"), Content = text, Margin = new Thickness(0, 0, 8, 6) };
+            button.Click += (_, _) => click();
+            row.Children.Add(button);
+        }
+        Chip("Save current look as theme", () =>
+        {
+            var themeName = name.Text.Trim();
+            if (themeName.Length == 0) return;
+            try
+            {
+                var saved = ThemeService.FromSettings(_settings, themeName);
+                ThemeService.Export(saved);
+                Update(() => _settings.Theme = saved.Name);
+                Build();
+            }
+            catch (Exception ex) { App.LogError(ex); }
+        });
+        Chip("Reload themes", () =>
+        {
+            ThemeService.Reload();
+            Update(() => { });
+            Build();
+        });
+        Chip("Open themes folder", () =>
+        {
+            try
+            {
+                System.IO.Directory.CreateDirectory(ThemeService.Folder);
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(ThemeService.Folder) { UseShellExecute = true })?.Dispose();
+            }
+            catch (Exception ex) { App.LogError(ex); }
+        });
+        panel.Children.Add(row);
+    }
 
     private void CustomColorRow(Panel panel)
     {

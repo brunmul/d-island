@@ -91,11 +91,11 @@ Source: "HowToUse.html"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\PRIVACY.txt"; Flags: dontcopy
 
 [Icons]
-Name: "{autoprograms}\D-Island"; Filename: "{app}\DIsland.exe"; Comment: "A Dynamic Island for Windows"
-Name: "{autoprograms}\D-Island Settings"; Filename: "{app}\DIsland.exe"; Parameters: "--settings"; Comment: "Open D-Island's settings"
+Name: "{autoprograms}\Atoll"; Filename: "{app}\DIsland.exe"; Comment: "A Dynamic Island for Windows (modified version of D-Island)"
+Name: "{autoprograms}\Atoll Settings"; Filename: "{app}\DIsland.exe"; Parameters: "--settings"; Comment: "Open Atoll's settings"
 Name: "{autoprograms}\How to use D-Island"; Filename: "{app}\HowToUse.html"; Comment: "The D-Island guide"
 Name: "{autoprograms}\D-Island Privacy"; Filename: "{app}\PRIVACY.txt"; Comment: "What D-Island processes (LICENSE.txt and NOTICE.txt are in the same folder)"
-Name: "{autodesktop}\D-Island"; Filename: "{app}\DIsland.exe"; Tasks: desktopicon
+Name: "{autodesktop}\Atoll"; Filename: "{app}\DIsland.exe"; Tasks: desktopicon
 
 [Registry]
 ; The same value D-Island's own "Start with Windows" setting uses (Services\StartupManager.cs).
@@ -103,7 +103,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\Identity\setup-identity.ps1"""; StatusMsg: "Setting up notifications and the Windows calendar (Windows may ask for permission)..."; Tasks: identity; Flags: runhidden waituntilterminated
-Filename: "{app}\DIsland.exe"; Description: "Start D-Island now"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\DIsland.exe"; Description: "Start Atoll now"; Flags: nowait postinstall skipifsilent
 ; Automatic updates run this installer silently (from D-Island's updater): reopen the island afterwards.
 Filename: "{app}\DIsland.exe"; Flags: nowait; Check: WizardSilent
 Filename: "{app}\HowToUse.html"; Description: "Open the guide"; Flags: postinstall shellexec skipifsilent unchecked
@@ -111,7 +111,7 @@ Filename: "{app}\HowToUse.html"; Description: "Open the guide"; Flags: postinsta
 [UninstallRun]
 ; The identity package (if it was set up) and its signing key in the user's certificate store. The
 ; machine-wide trust entry needs admin rights and is left; without the key it can't sign anything.
-Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Get-AppxPackage -Name DIsland | Remove-AppxPackage; Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq 'CN=D-Island Dev' | Remove-Item"""; Flags: runhidden; RunOnceId: "RemoveIdentity"
+Filename: "powershell.exe"; Parameters: "-NoProfile -Command ""Get-AppxPackage -Name Atoll | Remove-AppxPackage; Get-ChildItem Cert:\CurrentUser\My | Where-Object Subject -eq 'CN=Atoll Dev' | Remove-Item"""; Flags: runhidden; RunOnceId: "RemoveIdentity"
 
 [Code]
 { After the licence: what D-Island processes (PRIVACY.txt), before the how-to guide. Plus
