@@ -270,6 +270,12 @@ public sealed class AppSettings
 
     public double NotificationSeconds { get; set; } = 5;
 
+    /// <summary>Apps (display names) whose latest notification stays in the idle pill after the clock and
+    /// weather, until the app's next one (at most <see cref="MaxStickyNotificationApps"/>).</summary>
+    public List<string> StickyNotificationApps { get; set; } = new();
+
+    public const int MaxStickyNotificationApps = 3;
+
     // ---- weather
     public bool WeatherEnabled { get; set; } = true;
 

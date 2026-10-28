@@ -113,6 +113,8 @@
                         <TextBlock x:Name="ClockWeatherTemp" FontSize="14" FontWeight="SemiBold" Margin="5,0,0,0"
                                    VerticalAlignment="Center" />
                     </StackPanel>
+                    <!-- Pinned apps' latest notifications: "| icon text…" each (UpdateStickyNotifications). -->
+                    <StackPanel x:Name="ClockSticky" Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed" />
                 </StackPanel>
             </Grid>
 

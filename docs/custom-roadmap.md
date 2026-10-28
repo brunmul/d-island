@@ -163,6 +163,24 @@ redistribution, y compris commerciale, à ces conditions :
   le paquet Atoll pour la build Debug, arrête D-Island officiel et lance Atoll ; le clic sur l'alerte
   ouvre bien l'app.
 
+### Fait le 28 octobre : notifications épinglées par app
+
+- Demande de Bruno : dans l'îlot au repos, « heure | météo | dernière notif Claude | dernière notif GPT ».
+- Réglage `StickyNotificationApps` (noms d'app tels que les notifications les donnent, 3 max,
+  `AppSettings.MaxStickyNotificationApps`), édité dans Settings > Notifications : liste avec bouton
+  Retirer, liste déroulante modifiable des apps vues pendant la session (`NotificationService.SeenApps`).
+- `MainWindow.xaml.cs`, région `sticky notifications` : `_sticky` garde la plus récente par app
+  (`RememberSticky`, appelé au début de `OnNotificationArrived`, donc même en Ne pas déranger) ; une app
+  sans notification gardée prend la plus récente du centre de notifications (au démarrage).
+  `UpdateClock` ajoute « | icône texte… » par app dans `ClockSticky` (clé `_stickyKey`), et
+  `FitStickyNotifications` partage la place restante (ligne max 400 unités) : texte tronqué en « … ».
+- Texte : le titre, ou la 1re ligne du corps quand le titre est le nom de l'app ; nom de l'app seul si
+  « Hide the message text » ; préfixe « App: » quand l'app n'a pas de logo.
+- Rien n'est écrit sur disque à part les noms des apps ; « Clear all » vide aussi la pilule ; masquer une
+  seule notification la laisse affichée. `PRIVACY.txt` mis à jour.
+- Hook Debug `DISLAND_STICKY=App|texte[|AUMID];…` (épingle pour la session, fausses notifications).
+- Pas de clic propre sur un message de la pilule : le survol déplie l'îlot sur la page d'accueil.
+
 ### Où sont les alertes transitoires et le presse-papiers
 
 - **Lecture du presse-papiers** (`Services/ClipboardWatcher.cs`) : `AddClipboardFormatListener`, pas

@@ -20,6 +20,7 @@ Atoll est le fork personnel de D-Island 1.2.1 par Bruno Muller : même îlot dyn
 4. `f67c974` Le survol ne déplie plus l'îlot pendant une alerte cliquable ; fenêtre Réglages thémée avec Mica Windows 11.
 5. `862b6fc` Les 34 presets Arcos / Slack de DockyWin en thèmes intégrés (dégradés), liste déroulante avec nuancier.
 6. `478da88` Pilule bien ronde pour Arcos et les presets.
+7. Notifications épinglées par app (branche `claude/project-thread-ti9qdm`, à valider) : dans l'îlot au repos, après l'heure et la météo, la dernière notification de chaque app choisie (3 max, Settings > Notifications), tronquée avec « … », jusqu'à la suivante de la même app. Mémoire seulement ; « Clear all » les efface.
 
 ## Décisions prises
 

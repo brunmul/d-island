@@ -47,6 +47,9 @@ public sealed class NotificationService : IDisposable
     /// <summary>Newest first.</summary>
     public IReadOnlyList<IslandNotification> Items => _items;
 
+    /// <summary>Names of the apps whose notifications were read this session, for the pinned-apps list in Settings.</summary>
+    public static SortedSet<string> SeenApps { get; } = new(StringComparer.CurrentCultureIgnoreCase);
+
     /// <summary>Why notifications aren't available (no identity, access denied); null when working.</summary>
     public string? Problem { get; private set; }
 
@@ -197,6 +200,7 @@ public sealed class NotificationService : IDisposable
             }
             catch (Exception) { /* some system notifications have no app info */ }
 
+            SeenApps.Add(appName);
             return new IslandNotification(n.Id, appName, appId, texts[0], string.Join("\n", texts.Skip(1)), n.CreationTime)
             {
                 AppIcon = await IconAsync(n, appId),
