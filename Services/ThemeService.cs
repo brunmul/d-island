@@ -51,6 +51,7 @@ public static class ThemeService
     private static List<IslandTheme> Load()
     {
         var list = new List<IslandTheme> { IslandTheme.Classic(), IslandTheme.ArcosLight(), IslandTheme.ArcosDark() };
+        list.AddRange(IslandTheme.SlackPresets());
         try
         {
             if (!Directory.Exists(Folder)) return list;

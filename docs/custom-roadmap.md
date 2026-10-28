@@ -68,8 +68,16 @@ redistribution, y compris commerciale, à ces conditions :
   `Arcos Clair` et `Arcos Sombre` (tokens du design system Arcos : surface `#f5f4ed` / `#1f1e1d`, encre
   à 85 %, accent argile `#d97757`, contour 1 px à 18 %, arrondi 55 %, opaque, sans ombre ni verre,
   teintes `folder-*` pour succès / avertissement / info / focus).
-- **Réglages** : section THEME en tête (choix, description, « Save current look as theme », « Reload
-  themes », « Open themes folder ») ; `AppSettings.Theme`.
+- **Presets Arcos / Slack (28/10, soir)** : les 34 thèmes de DockyWin (table `SlackPresetTable` dans
+  `IslandTheme.cs`, copiée valeur pour valeur depuis `SlackTheme.cs` de Files-Finder) deviennent des
+  thèmes intégrés par `IslandTheme.FromGradient` : fond en dégradé haut → bas (`Colors.SurfaceEnd`,
+  rendu par un `LinearGradientBrush` dans `ApplyTheme`), encre papier ou sombre selon le contraste
+  WCAG sur le milieu du dégradé, remplissages = transparences de l'encre, accent = teinte de la
+  borne la plus colorée (argile pour les thèmes neutres), forme et matériau d'Arcos. Le preset
+  « Claude » n'est pas dupliqué : c'est Arcos Clair / Sombre.
+- **Réglages** : section THEME en tête avec une liste déroulante (nuancier par thème, 37 intégrés +
+  fichiers), description, « Save current look as theme », « Reload themes », « Open themes folder » ;
+  `AppSettings.Theme`.
 - **Hook de debug** `DISLAND_THEME=<nom>` : porte ce thème pour la session, sans l'enregistrer.
 - **Fenêtre Réglages (28/10, soir)** : elle suit la palette du thème (brosses `Surface`, `Ink`,
   `Secondary`, `Fill`, `Separator`… en `DynamicResource`) et prend le rendu natif Windows 11 :

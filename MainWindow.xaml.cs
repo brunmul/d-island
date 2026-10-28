@@ -1914,8 +1914,26 @@ public partial class MainWindow : Window
         };
         // Never fully 0: Windows passes clicks through fully transparent pixels of a layered window.
         baseColor.A = (byte)Math.Max(2, Math.Round(255 * materialAlpha * strength));
-        _pillBrush.BeginAnimation(SolidColorBrush.ColorProperty,
-            new ColorAnimation(baseColor, TimeSpan.FromMilliseconds(450)) { EasingFunction = new CubicEase() });
+        if (theme.Colors.SurfaceEnd is { Length: > 0 } surfaceEndText)
+        {
+            // Gradient themes (the Slack presets): top to bottom across the pill, whatever its height.
+            var surfaceEnd = ThemeService.ParseColor(surfaceEndText, surface);
+            var endColor = accent is { } a2 ? ColorTools.Mix(surfaceEnd, a2, tint) : surfaceEnd;
+            endColor.A = baseColor.A;
+            var gradient = new LinearGradientBrush(baseColor, endColor, 90);
+            gradient.Freeze();
+            PillShape.Fill = gradient;
+        }
+        else
+        {
+            if (PillShape.Fill != _pillBrush)
+            {
+                _pillBrush.Color = baseColor;
+                PillShape.Fill = _pillBrush;
+            }
+            _pillBrush.BeginAnimation(SolidColorBrush.ColorProperty,
+                new ColorAnimation(baseColor, TimeSpan.FromMilliseconds(450)) { EasingFunction = new CubicEase() });
+        }
 
         // Live blur of what's behind; adaptive strength fades it toward the sharp background.
         var shine = Math.Clamp(_settings.GlassShine, 0, 1);

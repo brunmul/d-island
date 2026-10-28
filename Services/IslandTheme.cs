@@ -16,6 +16,9 @@ public sealed class ThemeColors
     /// <summary>The island's base fill; the material adds transparency or blur over it.</summary>
     public string Surface { get; set; } = "#000000";
 
+    /// <summary>When set, the fill is a top-to-bottom gradient from <see cref="Surface"/> to this color (the Slack-style presets).</summary>
+    public string? SurfaceEnd { get; set; }
+
     /// <summary>Text and icons.</summary>
     public string Ink { get; set; } = "#FFFFFF";
 
@@ -162,6 +165,162 @@ public sealed class IslandTheme
         },
         Typography = new ThemeTypography { FontFamily = "Segoe UI Variable Text" },
     };
+
+    // ---- the 34 Slack presets of Arcos / DockyWin, as gradients (SlackTheme.cs in Files-Finder, value for value)
+
+    private static readonly (string Id, string Name, int Top, int Bottom)[] SlackPresetTable =
+    {
+        ("kind-of-blue", "Kind of Blue", 0x96C4EC, 0x4676A1),
+        ("funky-fresh", "Funky Fresh", 0xC4BEF7, 0x82C8AC),
+        ("jazz-club", "Jazz Club", 0x701B1A, 0x331134),
+        ("electric-fusion", "Electric Fusion", 0xE0F1A3, 0xB6F9B2),
+        ("brassy", "Brassy", 0xEBD47B, 0xC2A94F),
+        ("sunglasses-inside", "Sunglasses Inside", 0x2F1236, 0x220926),
+        ("aubergine", "Aubergine", 0x391742, 0x29092E),
+        ("clementine", "Clementine", 0x833B17, 0x7F3612),
+        ("banana", "Banana", 0xFDF5C5, 0xF8D854),
+        ("jade", "Jade", 0x2C5B42, 0x26513E),
+        ("lagoon", "Lagoon", 0x204868, 0x1E344B),
+        ("barbra", "Barbra", 0xF6CEDE, 0xEE88AB),
+        ("gray", "Gray", 0xECECEC, 0xCBCCCF),
+        ("mood-indigo", "Mood Indigo", 0x17215A, 0x0A154C),
+        ("tritanopia", "Tritanopia", 0x2F2F2F, 0x000000),
+        ("protanopia", "Protanopia", 0x423247, 0x210429),
+        ("raspberry-beret", "Raspberry Beret", 0xF1DEFB, 0xEE87AA),
+        ("big-business", "Big Business", 0x3C3C3F, 0x1D2A6E),
+        ("pog", "POG", 0xF2D9E4, 0xE2B447),
+        ("mint-chip", "Mint Chip", 0xD1EDBB, 0x8499E6),
+        ("pbandj", "PB&J", 0xE4D5C2, 0xD69BB8),
+        ("chill-vibes", "Chill Vibes", 0x2D5C43, 0x214752),
+        ("forest-floor", "Forest Floor", 0x445719, 0x4D3618),
+        ("slackr", "Slackr", 0xF6CFE0, 0x6AC3ED),
+        ("sea-glass", "Sea Glass", 0xC4EEF1, 0xD4A5F0),
+        ("lemon-lime", "Lemon Lime", 0x7C621B, 0x26500F),
+        ("falling-leaves", "Falling Leaves", 0x553C20, 0x6A5416),
+        ("sunrise", "Sunrise", 0xFBE8DD, 0xF1A9C3),
+        ("choco-mint", "Choco Mint", 0x493219, 0x204233),
+        ("cmyk", "CMYK", 0xBCEBFC, 0xEB8BAE),
+        ("haberdashery", "Haberdashery", 0x19354F, 0x3A2E0B),
+        ("hoth", "Hoth", 0xF9F9F9, 0xB3E8FB),
+        ("ochin", "Ochin", 0x1F4167, 0x16305B),
+        ("sweet-treat", "Sweet Treat", 0xF9DDDC, 0xF0A298),
+    };
+
+    /// <summary>The Slack-style gradient presets, built from the table above.</summary>
+    public static IEnumerable<IslandTheme> SlackPresets() =>
+        SlackPresetTable.Select(p => FromGradient(p.Name, p.Top, p.Bottom, $"Arcos / Slack preset \"{p.Id}\"."));
+
+    /// <summary>
+    /// A theme from a top-to-bottom gradient, with DockyWin's rules: ink by the contrast on the gradient's
+    /// middle (paper on dark, ink on light), every fill a transparency of that ink, and the accent the
+    /// hue of the more colorful stop (clay when the theme is neutral). Shape and material follow Arcos.
+    /// </summary>
+    public static IslandTheme FromGradient(string name, int top, int bottom, string? description = null)
+    {
+        var topColor = Rgb(top);
+        var bottomColor = Rgb(bottom);
+        var dark = IsDarkSurface(Mix(topColor, bottomColor, 0.5));
+        var ink = dark ? LightInk : DarkInk;
+        var (hue, saturation, _) = ToHsl(Chroma(topColor) >= Chroma(bottomColor) ? topColor : bottomColor);
+        var neutral = saturation < 0.08 || Math.Max(Chroma(topColor), Chroma(bottomColor)) < 12;
+        var accent = neutral ? "#D97757" : Hex(FromHsl(hue, 0.6, dark ? 0.68 : 0.45));
+        var arcos = dark ? ArcosDark() : ArcosLight();
+        return new IslandTheme
+        {
+            Name = name,
+            Description = description,
+            Author = "Bruno Muller (Arcos / DockyWin)",
+            BuiltIn = true,
+            AccentSource = AccentSource.Custom,
+            Colors = new ThemeColors
+            {
+                Surface = Hex(topColor),
+                SurfaceEnd = Hex(bottomColor),
+                Ink = Hex(ink),
+                InkSecondary = Hex(ink, 0.58),
+                InkTertiary = Hex(ink, 0.35),
+                Accent = accent,
+                Success = arcos.Colors.Success,
+                Warning = arcos.Colors.Warning,
+                Danger = arcos.Colors.Danger,
+                Info = arcos.Colors.Info,
+                Focus = arcos.Colors.Focus,
+                Placeholder = Hex(ink, 0.10),
+                Fill = Hex(ink, 0.07),
+                FillHover = Hex(ink, 0.06),
+                FillPressed = Hex(ink, 0.16),
+                Separator = Hex(ink, 0.16),
+                Outline = Hex(ink),
+                TextShadow = "#00000000",
+            },
+            Shape = arcos.Shape,
+            Material = arcos.Material,
+            Typography = arcos.Typography,
+        };
+    }
+
+    // DockyWin's palette: ink on light surfaces, paper on dark ones.
+    private static readonly System.Windows.Media.Color DarkInk = Rgb(0x1F1E1D);
+    private static readonly System.Windows.Media.Color LightInk = Rgb(0xF2F0EA);
+
+    private static System.Windows.Media.Color Rgb(int rgb) =>
+        System.Windows.Media.Color.FromRgb((byte)((rgb >> 16) & 0xFF), (byte)((rgb >> 8) & 0xFF), (byte)(rgb & 0xFF));
+
+    private static string Hex(System.Windows.Media.Color c, double opacity = 1) =>
+        $"#{(byte)Math.Round(opacity * 255):X2}{c.R:X2}{c.G:X2}{c.B:X2}";
+
+    private static System.Windows.Media.Color Mix(System.Windows.Media.Color from, System.Windows.Media.Color to, double amount) =>
+        System.Windows.Media.Color.FromRgb(
+            (byte)Math.Round(from.R + (to.R - from.R) * amount),
+            (byte)Math.Round(from.G + (to.G - from.G) * amount),
+            (byte)Math.Round(from.B + (to.B - from.B) * amount));
+
+    private static int Chroma(System.Windows.Media.Color c) =>
+        Math.Max(c.R, Math.Max(c.G, c.B)) - Math.Min(c.R, Math.Min(c.G, c.B));
+
+    /// <summary>Whether light ink has the better WCAG contrast on the surface.</summary>
+    private static bool IsDarkSurface(System.Windows.Media.Color surface)
+    {
+        var luminance = Luminance(surface);
+        return (Luminance(LightInk) + 0.05) / (luminance + 0.05) > (luminance + 0.05) / (Luminance(DarkInk) + 0.05);
+    }
+
+    private static double Luminance(System.Windows.Media.Color c)
+    {
+        static double Channel(byte value)
+        {
+            var v = value / 255.0;
+            return v <= 0.03928 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4);
+        }
+        return 0.2126 * Channel(c.R) + 0.7152 * Channel(c.G) + 0.0722 * Channel(c.B);
+    }
+
+    private static (double Hue, double Saturation, double Lightness) ToHsl(System.Windows.Media.Color c)
+    {
+        double r = c.R / 255.0, g = c.G / 255.0, b = c.B / 255.0;
+        double max = Math.Max(r, Math.Max(g, b)), min = Math.Min(r, Math.Min(g, b));
+        var lightness = (max + min) / 2;
+        if (max == min) return (0, 0, lightness);
+        var delta = max - min;
+        var saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+        var hue = max == r ? (g - b) / delta + (g < b ? 6 : 0) : max == g ? (b - r) / delta + 2 : (r - g) / delta + 4;
+        return (hue / 6, saturation, lightness);
+    }
+
+    private static System.Windows.Media.Color FromHsl(double hue, double saturation, double lightness)
+    {
+        static double Channel(double p, double q, double t)
+        {
+            t = t < 0 ? t + 1 : t > 1 ? t - 1 : t;
+            return t < 1.0 / 6 ? p + (q - p) * 6 * t : t < 0.5 ? q : t < 2.0 / 3 ? p + (q - p) * (2.0 / 3 - t) * 6 : p;
+        }
+        var q = lightness < 0.5 ? lightness * (1 + saturation) : lightness + saturation - lightness * saturation;
+        var p = 2 * lightness - q;
+        return System.Windows.Media.Color.FromRgb(
+            (byte)Math.Round(Channel(p, q, hue + 1.0 / 3) * 255),
+            (byte)Math.Round(Channel(p, q, hue) * 255),
+            (byte)Math.Round(Channel(p, q, hue - 1.0 / 3) * 255));
+    }
 
     /// <summary>Arcos, dark theme: warm charcoal, ink at 85%, the same clay accent and muted tints.</summary>
     public static IslandTheme ArcosDark() => new()

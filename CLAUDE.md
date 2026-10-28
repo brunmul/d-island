@@ -15,7 +15,9 @@ license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What
 
 - **Themes** (`Services/IslandTheme.cs`, `Services/ThemeService.cs`): a theme is colors + shape +
   material + typography, JSON-serializable; built-in Classic (the D-Island look), Arcos Clair and
-  Arcos Sombre, plus `%AppData%\DIsland\themes\*.json`. Choosing one copies its shape, material, font
+  Arcos Sombre, the 34 Arcos/Slack gradient presets (`IslandTheme.FromGradient`: a `SurfaceEnd`
+  color makes the pill a top-to-bottom `LinearGradientBrush`; ink, fills and accent are derived with
+  DockyWin's rules), plus `%AppData%\DIsland\themes\*.json`. Choosing one copies its shape, material, font
   and accent source into `AppSettings`; its colors go into the shared brushes of `App.xaml`
   (`Ink`, `Secondary`, `Tertiary`, `Green`, `Orange`, `Red`, `Cyan`, `Purple`, `ArtPlaceholder`,
   `Fill`, `FillHover`, `FillPressed`, `Separator`), changed in place by `ApplyTheme()`. **Reference

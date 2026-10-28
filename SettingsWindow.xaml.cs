@@ -880,12 +880,42 @@ public partial class SettingsWindow : Window
     private void ThemeRow(Panel panel)
     {
         var current = ThemeService.Find(_settings.Theme);
-        Choice(panel, "Theme", ThemeService.All.Select(t => (t.Name, t.Name)).ToArray(), () => current.Name, name =>
+        // A drop-down (37 built-in themes and the user's files): each entry shows its surface as a swatch.
+        var pick = new Grid { Margin = new Thickness(0, 2, 0, 2) };
+        pick.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(150) });
+        pick.ColumnDefinitions.Add(new ColumnDefinition());
+        pick.Children.Add(new TextBlock { Text = "Theme", VerticalAlignment = VerticalAlignment.Center });
+        var combo = new ComboBox { Width = 260, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+        foreach (var t in ThemeService.All)
         {
-            ThemeService.ApplyToSettings(ThemeService.Find(name), _settings);
-            // The sections below show the theme's shape, material and font: rebuild once this click is done.
+            var top = ThemeService.ParseColor(t.Colors.Surface, Colors.Black);
+            var bottom = ThemeService.ParseColor(t.Colors.SurfaceEnd ?? t.Colors.Surface, top);
+            var swatch = new Border
+            {
+                Width = 22,
+                Height = 14,
+                CornerRadius = new CornerRadius(4),
+                Margin = new Thickness(0, 0, 8, 0),
+                BorderBrush = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80)),
+                BorderThickness = new Thickness(1),
+                Background = new LinearGradientBrush(top, bottom, 90),
+            };
+            var entry = new StackPanel { Orientation = Orientation.Horizontal };
+            entry.Children.Add(swatch);
+            entry.Children.Add(new TextBlock { Text = t.Name + (t.File is not null ? "  (file)" : ""), VerticalAlignment = VerticalAlignment.Center });
+            combo.Items.Add(new ComboBoxItem { Content = entry, Tag = t.Name });
+            if (t.Name == current.Name) combo.SelectedIndex = combo.Items.Count - 1;
+        }
+        combo.SelectionChanged += (_, _) =>
+        {
+            if (_loading || combo.SelectedItem is not ComboBoxItem { Tag: string name } || name == _settings.Theme) return;
+            Update(() => ThemeService.ApplyToSettings(ThemeService.Find(name), _settings));
+            // The sections below show the theme's shape, material and font: rebuild once this change is done.
             Dispatcher.InvokeAsync(Build, DispatcherPriority.Background);
-        });
+        };
+        Grid.SetColumn(combo, 1);
+        pick.Children.Add(combo);
+        panel.Children.Add(pick);
         var about = current.Description ?? "";
         if (current.Author is { Length: > 0 } author) about += (about.Length > 0 ? "  ·  " : "") + author;
         if (current.File is { } file) about += (about.Length > 0 ? "  ·  " : "") + System.IO.Path.GetFileName(file);
