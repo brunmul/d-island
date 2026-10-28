@@ -198,6 +198,7 @@ public partial class SettingsWindow : Window
         Check(identity, "Clicking a notification alert opens its app", () => s.ClickOpensNotificationApp, v => s.ClickOpensNotificationApp = v);
         Slider(identity, "Notification alerts", 2, 12, 0.5, () => s.NotificationSeconds, v => s.NotificationSeconds = v, v => $"{v:0.0} s");
         Note(identity, "Alerts are held back while Do Not Disturb is on, like Windows does.");
+        StickyApps(identity);
 
         var calendar = Section("CALENDAR");
         Check(calendar, "Show the Calendar page", () => s.CalendarEnabled, v => s.CalendarEnabled = v);
@@ -594,7 +595,68 @@ public partial class SettingsWindow : Window
         };
     }
 
-    // ---------------------------------------------------------------- weather city
+    /// <summary>Apps whose newest notification stays in the idle pill: the pinned list, plus an editable drop-down
+    /// of the apps seen this session.</summary>
+    private void StickyApps(Panel panel)
+    {
+        panel.Children.Add(new TextBlock { Text = "Keep the latest notification of these apps next to the clock", Margin = new Thickness(0, 10, 0, 2) });
+        var list = new StackPanel();
+        panel.Children.Add(list);
+
+        var add = new Grid { Margin = new Thickness(0, 4, 0, 4) };
+        add.ColumnDefinitions.Add(new ColumnDefinition());
+        add.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var box = new ComboBox { IsEditable = true, ToolTip = "The app's name, as its notifications show it (for example Claude or ChatGPT)" };
+        var button = new Button { Style = (Style)FindResource("ChipButton"), Content = "Add", Margin = new Thickness(8, 0, 0, 0) };
+        Grid.SetColumn(button, 1);
+        add.Children.Add(box);
+        add.Children.Add(button);
+        panel.Children.Add(add);
+
+        bool Pinned(string app) => _settings.StickyNotificationApps.Contains(app, StringComparer.CurrentCultureIgnoreCase);
+
+        void Fill()
+        {
+            list.Children.Clear();
+            foreach (var app in _settings.StickyNotificationApps)
+            {
+                var row = new DockPanel { Margin = new Thickness(0, 2, 0, 2) };
+                var remove = SmallButton("\uE711", "Remove");
+                remove.Click += (_, _) =>
+                {
+                    Update(() => _settings.StickyNotificationApps = _settings.StickyNotificationApps.Where(a => a != app).ToList());
+                    Fill();
+                };
+                DockPanel.SetDock(remove, Dock.Right);
+                row.Children.Add(remove);
+                row.Children.Add(new TextBlock { Text = app, VerticalAlignment = VerticalAlignment.Center });
+                list.Children.Add(row);
+            }
+            box.Items.Clear();
+            foreach (var seen in NotificationService.SeenApps)
+                if (!Pinned(seen)) box.Items.Add(seen);
+            add.IsEnabled = _settings.StickyNotificationApps.Count < AppSettings.MaxStickyNotificationApps;
+        }
+        Fill();
+
+        void Add()
+        {
+            var app = box.Text.Trim();
+            if (app.Length == 0 || Pinned(app) || _settings.StickyNotificationApps.Count >= AppSettings.MaxStickyNotificationApps) return;
+            Update(() => _settings.StickyNotificationApps = _settings.StickyNotificationApps.Append(app).ToList());
+            box.Text = "";
+            Fill();
+        }
+        button.Click += (_, _) => Add();
+        box.KeyDown += (_, e) =>
+        {
+            if (e.Key == System.Windows.Input.Key.Enter) Add();
+        };
+        Note(panel, $"Up to {AppSettings.MaxStickyNotificationApps} apps. Each one's newest notification stays after the clock and weather " +
+                    "until its next one, shortened to fit; \"Clear all\" on the Notifications page removes them. They're kept in memory only.");
+    }
+
+        // ---------------------------------------------------------------- weather city
 
     /// <summary>Search box + results; picking one switches weather to that city.</summary>
     private void CitySearch(Panel panel)

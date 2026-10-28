@@ -18,7 +18,7 @@ IN SHORT
 Read to show it in the island, kept in memory, and not sent anywhere.
 
 - Media: title, artist, album, artwork and playback position from apps that report to Windows' media controls (Spotify, Apple Music, browsers and others).
-- Notifications: other apps' notifications in Windows' notification center (app name, icon, title and text). Only after you complete the one-time setup and Windows grants access. You can hide message text in Settings.
+- Notifications: other apps' notifications in Windows' notification center (app name, icon, title and text). Only after you complete the one-time setup and Windows grants access. You can hide message text in Settings. For apps you pin in Settings > Notifications, the newest notification stays shown next to the clock; it's kept in memory only, never written to disk, and only the pinned apps' names are saved in your settings.
 - Calendar: events from calendars added to Windows (after the one-time setup) and from iCal links you add: titles, times, locations and meeting links.
 - Clipboard: when you copy something, the type of content and the first line of text, to show the "Copied" alert. Not stored. Content that password managers mark as private is never read. The text preview can be switched off.
 - Keyboard: only whether Caps Lock or Num Lock changed, and whether the paste shortcuts (Ctrl+V, Shift+Insert) and the hide/show shortcut were pressed (which needs knowing whether Ctrl, Alt, Shift or Windows is held). No other keys are read and nothing you type in other apps is recorded.

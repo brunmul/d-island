@@ -163,6 +163,30 @@ redistribution, y compris commerciale, à ces conditions :
   le paquet Atoll pour la build Debug, arrête D-Island officiel et lance Atoll ; le clic sur l'alerte
   ouvre bien l'app.
 
+### Fait le 28 octobre : notifications épinglées par app
+
+- Demande de Bruno : dans l'îlot au repos, « heure | météo | dernière notif Claude | dernière notif GPT ».
+- Réglage `StickyNotificationApps` (noms d'app tels que les notifications les donnent, 3 max,
+  `AppSettings.MaxStickyNotificationApps`), édité dans Settings > Notifications : liste avec bouton
+  Retirer, liste déroulante modifiable des apps vues pendant la session (`NotificationService.SeenApps`).
+- `MainWindow.xaml.cs`, région `sticky notifications` : `_sticky` garde la plus récente par app
+  (`RememberSticky`, appelé au début de `OnNotificationArrived`, donc même en Ne pas déranger) ; une app
+  sans notification gardée prend la plus récente du centre de notifications (au démarrage).
+  `UpdateClock` ajoute « | icône texte… » par app dans `ClockSticky` (clé `_stickyKey`), et
+  `FitStickyNotifications` partage la place restante (ligne max 410 unités) : texte tronqué en « … ».
+- Texte : le titre, ou la 1re ligne du corps quand le titre est le nom de l'app ; « New notification » si
+  « Hide the message text » ; jamais le nom de l'app devant le texte, seulement son icône (retour de
+  Bruno, 28/10), avec l'icône du menu Démarrer si la notification n'a pas de logo.
+- Icône sans fond propre et du ton de la surface (logo blanc de ChatGPT sur Arcos Clair) : plaque
+  couleur encre derrière (`NeedsIconPlate` : logo presque sans couleur, saturation moyenne < 0,2, et
+  luminance moyenne des pixels visibles à plus de 0,6 de celle de l'encre). Les icônes colorées
+  (carré orange de Claude) n'en ont jamais. Vérifié par captures sur le thème courant, Arcos Clair et
+  Arcos Sombre.
+- Rien n'est écrit sur disque à part les noms des apps ; « Clear all » vide aussi la pilule ; masquer une
+  seule notification la laisse affichée. `PRIVACY.txt` mis à jour.
+- Hook Debug `DISLAND_STICKY=App|texte[|AUMID];…` (épingle pour la session, fausses notifications).
+- Pas de clic propre sur un message de la pilule : le survol déplie l'îlot sur la page d'accueil.
+
 ### Où sont les alertes transitoires et le presse-papiers
 
 - **Lecture du presse-papiers** (`Services/ClipboardWatcher.cs`) : `AddClipboardFormatListener`, pas

@@ -224,6 +224,7 @@ public partial class MainWindow : Window
         };
         _notifications.Arrived += OnNotificationArrived;
         _notifications.Changed += BuildNotificationList;
+        _notifications.Changed += UpdateClock; // pinned apps' newest notifications at start
         _calendar.Changed += BuildCalendar;
         _calendar.Reminder += OnCalendarReminder;
         Root.MouseRightButtonUp += (_, e) =>
@@ -564,6 +565,21 @@ public partial class MainWindow : Window
             _leavePoll.Tick += (_, _) => _msOutside = 0;
             SetExpanded(true);
             if (Enum.TryParse<ExpandedPage>(expand, true, out var page)) ShowPage(page, animate: false);
+        }
+        if (Environment.GetEnvironmentVariable("DISLAND_STICKY") is { Length: > 0 } stickyDemo)
+        {
+            // Debug aid: "App|text[|AppUserModelId];…" pins those apps for the run and keeps a fake notification
+            // for each (the optional id gives it the app's Start menu icon).
+            uint id = 900000;
+            foreach (var entry in stickyDemo.Split(';', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var parts = entry.Split('|', 3);
+                _debugStickyApps.Add(parts[0]);
+                RememberSticky(new IslandNotification(id++, parts[0], null, parts[0], parts.Length > 1 ? parts[1] : "", DateTimeOffset.Now)
+                {
+                    AppIcon = parts.Length > 2 ? QuickAppsService.GetIcon(parts[2], 64) : null,
+                });
+            }
         }
         if (Environment.GetEnvironmentVariable("DISLAND_DEVICE") is { Length: > 0 } deviceName)
         {
@@ -1896,6 +1912,7 @@ public partial class MainWindow : Window
 
         // Palette: the shared brushes (App.xaml) change color in place, so every view follows at once.
         ThemeService.ApplyPalette(theme.Colors);
+        UpdateClock(); // pinned notifications' icon plates depend on the ink
         var surface = ThemeService.ParseColor(theme.Colors.Surface, Colors.Black);
         var ink = ThemeService.ParseColor(theme.Colors.Ink, Colors.White);
         _textShadow.Color = ThemeService.ParseColor(theme.Colors.TextShadow, Colors.Black);
@@ -2385,8 +2402,11 @@ public partial class MainWindow : Window
         var weather = _settings.WeatherEnabled && _settings.WeatherInIdlePill ? _weather.Current : null;
         var weatherKey = weather is null ? null : $"{weather.Kind}|{weather.IsDay}|{Degrees(weather.Temperature)}";
         var visibility = minimal ? Visibility.Collapsed : Visibility.Visible;
+        var sticky = minimal ? new List<IslandNotification>() : PinnedStickyNotifications();
+        var stickyKey = string.Join("\n", sticky.Select(n => $"{n.AppName}|{n.Id}|{StickyText(n)}"))
+                        + ((Ink as SolidColorBrush)?.Color.ToString() ?? ""); // icon plates follow the ink
         if (idleText == ClockText.Text && visibility == ClockRow.Visibility && time == BigTime.Text
-            && weatherKey == _clockWeatherKey)
+            && weatherKey == _clockWeatherKey && stickyKey == _stickyKey)
             return;
 
         ClockRow.Visibility = visibility;
@@ -2403,6 +2423,12 @@ public partial class MainWindow : Window
             ClockWeatherTemp.Text = weather is null ? "" : Degrees(weather.Temperature);
             ClockWeather.Visibility = weather is null ? Visibility.Collapsed : Visibility.Visible;
         }
+        if (stickyKey != _stickyKey)
+        {
+            _stickyKey = stickyKey;
+            BuildStickyNotifications(sticky);
+        }
+        if (sticky.Count > 0) FitStickyNotifications(sticky.Count);
 
         // Size the idle pill to its text so seconds/date never clip.
         double width, height;
@@ -2420,6 +2446,127 @@ public partial class MainWindow : Window
         ClockView.Width = width;
         ClockView.Height = height;
         if (IsLoaded && _currentView == ClockView && !_state.IsExpanded) Render();
+    }
+
+    // ---------------------------------------------------------------- sticky notifications
+
+    // The idle pill can keep the newest notification of a few pinned apps after the clock and weather
+    // ("12:40 | 18° | Claude: Done… | ChatGPT: …"), each until that app's next one. Kept in memory only.
+    private readonly Dictionary<string, IslandNotification> _sticky = new(StringComparer.CurrentCultureIgnoreCase);
+    private readonly List<string> _debugStickyApps = new();
+    private string? _stickyKey;
+
+    /// <summary>The idle row is at most this wide (design units), so the pill fits the 460-unit window.</summary>
+    private const double IdleRowMaxWidth = 410;
+
+    private IEnumerable<string> StickyApps =>
+        _settings.StickyNotificationApps.Concat(_debugStickyApps).Take(AppSettings.MaxStickyNotificationApps);
+
+    /// <summary>Keeps a pinned app's newest notification (also during Do Not Disturb: the pill doesn't alert).</summary>
+    private void RememberSticky(IslandNotification n)
+    {
+        if (!StickyApps.Contains(n.AppName, StringComparer.CurrentCultureIgnoreCase)) return;
+        if (_sticky.TryGetValue(n.AppName, out var kept) && kept.Time > n.Time) return;
+        _sticky[n.AppName] = n;
+        UpdateClock();
+    }
+
+    /// <summary>Pinned apps' kept notifications in the pinned order; an app without one yet takes its newest
+    /// from the notification center (so they show again after a restart).</summary>
+    private List<IslandNotification> PinnedStickyNotifications()
+    {
+        var list = new List<IslandNotification>();
+        if (!_settings.NotificationsEnabled && _debugStickyApps.Count == 0) return list;
+        foreach (var app in StickyApps)
+        {
+            if (!_sticky.TryGetValue(app, out var n)
+                && _notifications.Items.FirstOrDefault(i => i.AppName.Equals(app, StringComparison.CurrentCultureIgnoreCase)) is { } newest)
+                _sticky[app] = n = newest;
+            if (n is not null) list.Add(n);
+        }
+        return list;
+    }
+
+    /// <summary>The message (the title, or the first body line when the title is just the app's name).</summary>
+    private string StickyText(IslandNotification n)
+    {
+        // The app's icon says whose message it is; no name in front (Bruno's call).
+        if (_settings.NotificationsHideText) return "New notification";
+        var body = FirstLine(n.Body);
+        return n.Title.Equals(n.AppName, StringComparison.CurrentCultureIgnoreCase) && body.Length > 0 ? body : n.Title;
+    }
+
+    /// <summary>"| icon text…" for each kept notification, like the weather after the clock.</summary>
+    private void BuildStickyNotifications(List<IslandNotification> items)
+    {
+        ClockSticky.Children.Clear();
+        foreach (var n in items)
+        {
+            var separator = new TextBlock { Text = "|", FontSize = 14, Margin = new Thickness(9, 0, 9, 1), VerticalAlignment = VerticalAlignment.Center };
+            separator.SetResourceReference(TextBlock.ForegroundProperty, "Secondary");
+            var icon = new Border
+            {
+                Width = 16,
+                Height = 16,
+                CornerRadius = new CornerRadius(4),
+                Margin = new Thickness(0, 0, 6, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+            // No logo from the notification: try the app's Start menu icon.
+            if ((n.AppIcon ?? (n.AppId is { Length: > 0 } appId ? QuickAppsService.GetIcon(appId, 64) : null)) is { } image)
+            {
+                var brush = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+                if (NeedsIconPlate(image))
+                {
+                    // A logo with no background of its own, in the surface's tone (ChatGPT's white knot on
+                    // Arcos Clair): an ink-colored plate behind it keeps it visible.
+                    icon.SetResourceReference(Border.BackgroundProperty, "Ink");
+                    icon.Padding = new Thickness(2);
+                    icon.Child = new Border { Background = brush };
+                }
+                else icon.Background = brush;
+            }
+            else icon.SetResourceReference(Border.BackgroundProperty, "ArtPlaceholder");
+            var text = new TextBlock
+            {
+                Text = StickyText(n).ReplaceLineEndings(" "),
+                FontSize = 13,
+                VerticalAlignment = VerticalAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+            };
+            var chip = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            chip.Children.Add(separator);
+            chip.Children.Add(icon);
+            chip.Children.Add(text);
+            ClockSticky.Children.Add(chip);
+        }
+        ClockSticky.Visibility = items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<ImageSource, object> _iconLuminance = new();
+
+    /// <summary>True for a near-monochrome logo about as light (or dark) as the surface, i.e. far from the ink.
+    /// Colored icons (Claude's orange tile) carry their own contrast and never get a plate.</summary>
+    private bool NeedsIconPlate(ImageSource image)
+    {
+        if (image is not BitmapSource bitmap || Ink is not SolidColorBrush ink) return false;
+        if (_iconLuminance.GetValue(image, _ => ColorTools.VisibleTone(bitmap) is { Saturation: < 0.2 } tone ? tone.Luminance : -1.0)
+            is not double luminance || luminance < 0)
+            return false;
+        return Math.Abs(luminance - ColorTools.Luminance(ink.Color)) > 0.6;
+    }
+
+    /// <summary>Shares the room left after the clock and weather between the messages; longer ones end in "…".</summary>
+    private void FitStickyNotifications(int count)
+    {
+        var infinite = new Size(double.PositiveInfinity, double.PositiveInfinity);
+        ClockText.Measure(infinite);
+        ClockWeather.Measure(infinite);
+        var used = ClockText.DesiredSize.Width + (ClockWeather.Visibility == Visibility.Visible ? ClockWeather.DesiredSize.Width : 0);
+        const double chrome = 18 + 5 + 16 + 6; // separator margins and bar, icon and its gap
+        var each = Math.Clamp((IdleRowMaxWidth - used) / count - chrome, 40, 160);
+        foreach (var chip in ClockSticky.Children.OfType<StackPanel>())
+            if (chip.Children[^1] is TextBlock text) text.MaxWidth = each;
     }
 
     // ---------------------------------------------------------------- volume / brightness OSD
@@ -2633,6 +2780,7 @@ public partial class MainWindow : Window
 
     private void OnNotificationArrived(IslandNotification n)
     {
+        RememberSticky(n);
         // Windows holds toasts back during Do Not Disturb; so does the island.
         if (!_settings.NotificationsEnabled || IslandHidden || _focus.IsOn) return;
         if (!_state.CanShowTransient(TransientPriority.Notification)) return;
@@ -2664,7 +2812,12 @@ public partial class MainWindow : Window
             : time.LocalDateTime.ToString("ddd");
     }
 
-    private void OnNotificationsClearClick(object sender, RoutedEventArgs e) => _notifications.ClearAll();
+    private void OnNotificationsClearClick(object sender, RoutedEventArgs e)
+    {
+        // "Clear all" also lets go of the messages kept in the idle pill.
+        _sticky.Clear();
+        _notifications.ClearAll();
+    }
 
     private void OnIdentitySetupClick(object sender, RoutedEventArgs e)
     {

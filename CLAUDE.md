@@ -30,6 +30,10 @@ license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What
   `DISLAND_ACTIVATE=<AUMID>|<log.txt>` (Debug) activates that id after 2 s and logs the foreground
   process; verified with Claude, Discord, Slack, Spotify (running) and WhatsApp (launched). While such
   an alert shows, hovering doesn't expand the island (`AlertIsClickable`), so the click reaches it.
+- **Sticky notifications** (`MainWindow.xaml.cs`, region `sticky notifications`): the idle pill shows
+  "| icon text…" after the clock and weather for each app in `StickyNotificationApps` (max 3): its
+  newest notification until the next one, in memory only. `DISLAND_STICKY=App|text[|AUMID];…` (Debug)
+  pins fake ones for a run.
 - **Settings window:** follows the theme palette and gets Windows 11 chrome from
   `Services/WindowBackdrop.cs`: Mica backdrop (build 22621+, the window background then stays
   transparent) and a dark or light title bar chosen from the theme ink's lightness, not from Windows'
