@@ -2455,7 +2455,7 @@ public partial class MainWindow : Window
     private string? _stickyKey;
 
     /// <summary>The idle row is at most this wide (design units), so the pill fits the 460-unit window.</summary>
-    private const double IdleRowMaxWidth = 400;
+    private const double IdleRowMaxWidth = 410;
 
     private IEnumerable<string> StickyApps =>
         _settings.StickyNotificationApps.Concat(_debugStickyApps).Take(AppSettings.MaxStickyNotificationApps);
@@ -2488,11 +2488,10 @@ public partial class MainWindow : Window
     /// <summary>The message (the title, or the first body line when the title is just the app's name).</summary>
     private string StickyText(IslandNotification n)
     {
-        if (_settings.NotificationsHideText) return n.AppName;
+        // The app's icon says whose message it is; no name in front (Bruno's call).
+        if (_settings.NotificationsHideText) return "New notification";
         var body = FirstLine(n.Body);
-        var text = n.Title.Equals(n.AppName, StringComparison.CurrentCultureIgnoreCase) && body.Length > 0 ? body : n.Title;
-        // Without a logo, the app's name says whose message it is.
-        return n.AppIcon is null ? $"{n.AppName}: {text}" : text;
+        return n.Title.Equals(n.AppName, StringComparison.CurrentCultureIgnoreCase) && body.Length > 0 ? body : n.Title;
     }
 
     /// <summary>"| icon text…" for each kept notification, like the weather after the clock.</summary>
@@ -2511,7 +2510,9 @@ public partial class MainWindow : Window
                 Margin = new Thickness(0, 0, 6, 0),
                 VerticalAlignment = VerticalAlignment.Center,
             };
-            if (n.AppIcon is { } image) icon.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+            // No logo from the notification: try the app's Start menu icon.
+            if ((n.AppIcon ?? (n.AppId is { Length: > 0 } appId ? QuickAppsService.GetIcon(appId, 64) : null)) is { } image)
+                icon.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
             else icon.SetResourceReference(Border.BackgroundProperty, "ArtPlaceholder");
             var text = new TextBlock
             {

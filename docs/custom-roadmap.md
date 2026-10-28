@@ -173,9 +173,10 @@ redistribution, y compris commerciale, à ces conditions :
   (`RememberSticky`, appelé au début de `OnNotificationArrived`, donc même en Ne pas déranger) ; une app
   sans notification gardée prend la plus récente du centre de notifications (au démarrage).
   `UpdateClock` ajoute « | icône texte… » par app dans `ClockSticky` (clé `_stickyKey`), et
-  `FitStickyNotifications` partage la place restante (ligne max 400 unités) : texte tronqué en « … ».
-- Texte : le titre, ou la 1re ligne du corps quand le titre est le nom de l'app ; nom de l'app seul si
-  « Hide the message text » ; préfixe « App: » quand l'app n'a pas de logo.
+  `FitStickyNotifications` partage la place restante (ligne max 410 unités) : texte tronqué en « … ».
+- Texte : le titre, ou la 1re ligne du corps quand le titre est le nom de l'app ; « New notification » si
+  « Hide the message text » ; jamais le nom de l'app devant le texte, seulement son icône (retour de
+  Bruno, 28/10), avec l'icône du menu Démarrer si la notification n'a pas de logo.
 - Rien n'est écrit sur disque à part les noms des apps ; « Clear all » vide aussi la pilule ; masquer une
   seule notification la laisse affichée. `PRIVACY.txt` mis à jour.
 - Hook Debug `DISLAND_STICKY=App|texte[|AUMID];…` (épingle pour la session, fausses notifications).
