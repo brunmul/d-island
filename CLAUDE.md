@@ -25,6 +25,8 @@ license obligations and fork pitfalls in `docs/custom-roadmap.md` (French). What
 - **Notification click** (`Services/AppActivator.cs`): a click on a notification alert (and a row on
   the Notifications page) brings the app forward: window by AppUserModelID property, then
   `IApplicationActivationManager` for packaged ids, then process name, then `shell:AppsFolder`.
+  `DISLAND_ACTIVATE=<AUMID>|<log.txt>` (Debug) activates that id after 2 s and logs the foreground
+  process; verified with Claude, Discord, Slack, Spotify (running) and WhatsApp (launched).
 - **Own identity and mutex:** package `Atoll` / `CN=Atoll Dev` (`app.manifest`,
   `Identity\AppxManifest.xml`, `setup-identity.ps1`, which prefers an installed Windows SDK's
   makeappx/signtool and retries `Add-AppxPackage` from `%UserProfile%`); `Local\Atoll.SingleInstance`.

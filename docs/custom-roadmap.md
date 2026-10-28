@@ -141,9 +141,13 @@ redistribution, y compris commerciale, à ces conditions :
   replié pendant l'alerte (`OnRootMouseLeftButtonUp`) ferme l'alerte et appelle `AppActivator`. Le
   curseur devient une main. La page Notifications étendue utilise aussi `AppActivator`.
 - Réglage `ClickOpensNotificationApp` (activé par défaut) dans Settings > Notifications.
-- **Non testé avec de vraies notifications** : la version Debug n'a pas d'identité tant que le paquet
-  Atoll n'est pas enregistré, et D-Island officiel tournait pendant le développement. Cas à tester :
-  Claude (`Claude_pzs8sxrjxfjjc!Claude`), Discord, Slack, WhatsApp.
+- **Activation vérifiée** (hook Debug `DISLAND_ACTIVATE=<AUMID>|<log>`, 28/10) : Claude
+  (`Claude_pzs8sxrjxfjjc!Claude`), Discord (`com.squirrel.Discord.Discord`), Slack
+  (`com.tinyspeck.slackdesktop_…!Slack`) et Spotify (`…\Spotify.exe`) reviennent au premier plan ;
+  WhatsApp (`5319275A.WhatsAppDesktop_…!App`, fermé) se lance. Aucune erreur dans `error.log`.
+- **Reste à tester avec de vraies notifications** : enregistrer le paquet Atoll
+  (`Identity\setup-identity.ps1 -ExeDir <dossier de l'exe>`, un UAC pour le certificat), arrêter
+  D-Island officiel, lancer Atoll, provoquer une notification et cliquer l'alerte.
 
 ### Où sont les alertes transitoires et le presse-papiers
 

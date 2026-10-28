@@ -521,6 +521,23 @@ public partial class MainWindow : Window
             if (activities.Contains("timer")) _timer.Start(TimeSpan.FromMinutes(5));
             if (activities.Contains("stopwatch")) _stopwatch.Start();
         }
+        if (Environment.GetEnvironmentVariable("DISLAND_ACTIVATE") is { Length: > 0 } activateId)
+        {
+            // Debug aid: "<AppUserModelID>|<log.txt>" activates that app after 2 s, as a notification click
+            // would, and logs which process owns the foreground window 1.5 s later.
+            var parts = activateId.Split('|', 2);
+            _ = Task.Delay(2000).ContinueWith(async _ =>
+            {
+                AppActivator.Activate(parts[0]);
+                await Task.Delay(1500);
+                var hwnd = NativeMethods.GetForegroundWindow();
+                NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
+                string owner;
+                try { using var p = Process.GetProcessById((int)pid); owner = p.ProcessName; }
+                catch (Exception) { owner = "?"; }
+                if (parts.Length > 1) System.IO.File.AppendAllText(parts[1], $"{parts[0]} -> foreground: {owner} (pid {pid})\n");
+            }, TaskScheduler.FromCurrentSynchronizationContext());
+        }
         if (Environment.GetEnvironmentVariable("DISLAND_THEME") is { Length: > 0 } themeName)
         {
             // Debug aid: wear this theme for this run only (in memory, never saved by this hook).
