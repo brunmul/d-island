@@ -153,7 +153,7 @@ public sealed class IslandTheme
             Outline = "#000000",
             TextShadow = "#00000000",
         },
-        Shape = new ThemeShape { CornerRoundness = 0.55, OutlineWidth = 1, OutlineOpacity = 0.18, ShadowStrength = 0 },
+        Shape = new ThemeShape { CornerRoundness = 1, OutlineWidth = 1, OutlineOpacity = 0.18, ShadowStrength = 0 },
         Material = new ThemeMaterial
         {
             Material = IslandMaterial.Opaque,
@@ -350,7 +350,7 @@ public sealed class IslandTheme
             Outline = "#FFFFFF",
             TextShadow = "#00000000",
         },
-        Shape = new ThemeShape { CornerRoundness = 0.55, OutlineWidth = 1, OutlineOpacity = 0.18, ShadowStrength = 0 },
+        Shape = new ThemeShape { CornerRoundness = 1, OutlineWidth = 1, OutlineOpacity = 0.18, ShadowStrength = 0 },
         Material = new ThemeMaterial
         {
             Material = IslandMaterial.Opaque,

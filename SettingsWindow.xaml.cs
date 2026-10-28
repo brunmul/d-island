@@ -894,7 +894,7 @@ public partial class SettingsWindow : Window
             {
                 Width = 22,
                 Height = 14,
-                CornerRadius = new CornerRadius(4),
+                CornerRadius = new CornerRadius(7),
                 Margin = new Thickness(0, 0, 8, 0),
                 BorderBrush = new SolidColorBrush(Color.FromArgb(0x40, 0x80, 0x80, 0x80)),
                 BorderThickness = new Thickness(1),

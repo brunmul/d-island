@@ -66,7 +66,7 @@ redistribution, y compris commerciale, à ces conditions :
   (`Colors.Surface`) remplace le noir du fond, l'encre remplace `Brushes.White`.
 - **Thèmes intégrés** : `Classic` (rendu identique à D-Island 1.2.1, vérifié par capture),
   `Arcos Clair` et `Arcos Sombre` (tokens du design system Arcos : surface `#f5f4ed` / `#1f1e1d`, encre
-  à 85 %, accent argile `#d97757`, contour 1 px à 18 %, arrondi 55 %, opaque, sans ombre ni verre,
+  à 85 %, accent argile `#d97757`, contour 1 px à 18 %, pilule ronde, opaque, sans ombre ni verre,
   teintes `folder-*` pour succès / avertissement / info / focus).
 - **Presets Arcos / Slack (28/10, soir)** : les 34 thèmes de DockyWin (table `SlackPresetTable` dans
   `IslandTheme.cs`, copiée valeur pour valeur depuis `SlackTheme.cs` de Files-Finder) deviennent des
