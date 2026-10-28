@@ -1912,6 +1912,7 @@ public partial class MainWindow : Window
 
         // Palette: the shared brushes (App.xaml) change color in place, so every view follows at once.
         ThemeService.ApplyPalette(theme.Colors);
+        UpdateClock(); // pinned notifications' icon plates depend on the ink
         var surface = ThemeService.ParseColor(theme.Colors.Surface, Colors.Black);
         var ink = ThemeService.ParseColor(theme.Colors.Ink, Colors.White);
         _textShadow.Color = ThemeService.ParseColor(theme.Colors.TextShadow, Colors.Black);
@@ -2402,7 +2403,8 @@ public partial class MainWindow : Window
         var weatherKey = weather is null ? null : $"{weather.Kind}|{weather.IsDay}|{Degrees(weather.Temperature)}";
         var visibility = minimal ? Visibility.Collapsed : Visibility.Visible;
         var sticky = minimal ? new List<IslandNotification>() : PinnedStickyNotifications();
-        var stickyKey = string.Join("\n", sticky.Select(n => $"{n.AppName}|{n.Id}|{StickyText(n)}"));
+        var stickyKey = string.Join("\n", sticky.Select(n => $"{n.AppName}|{n.Id}|{StickyText(n)}"))
+                        + ((Ink as SolidColorBrush)?.Color.ToString() ?? ""); // icon plates follow the ink
         if (idleText == ClockText.Text && visibility == ClockRow.Visibility && time == BigTime.Text
             && weatherKey == _clockWeatherKey && stickyKey == _stickyKey)
             return;
@@ -2512,7 +2514,18 @@ public partial class MainWindow : Window
             };
             // No logo from the notification: try the app's Start menu icon.
             if ((n.AppIcon ?? (n.AppId is { Length: > 0 } appId ? QuickAppsService.GetIcon(appId, 64) : null)) is { } image)
-                icon.Background = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+            {
+                var brush = new ImageBrush(image) { Stretch = Stretch.UniformToFill };
+                if (NeedsIconPlate(image))
+                {
+                    // A logo with no background of its own, in the surface's tone (ChatGPT's white knot on
+                    // Arcos Clair): an ink-colored plate behind it keeps it visible.
+                    icon.SetResourceReference(Border.BackgroundProperty, "Ink");
+                    icon.Padding = new Thickness(2);
+                    icon.Child = new Border { Background = brush };
+                }
+                else icon.Background = brush;
+            }
             else icon.SetResourceReference(Border.BackgroundProperty, "ArtPlaceholder");
             var text = new TextBlock
             {
@@ -2528,6 +2541,16 @@ public partial class MainWindow : Window
             ClockSticky.Children.Add(chip);
         }
         ClockSticky.Visibility = items.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private readonly System.Runtime.CompilerServices.ConditionalWeakTable<ImageSource, object> _iconLuminance = new();
+
+    /// <summary>True when the icon is about as light (or dark) as the surface, i.e. far from the ink.</summary>
+    private bool NeedsIconPlate(ImageSource image)
+    {
+        if (image is not BitmapSource bitmap || Ink is not SolidColorBrush ink) return false;
+        var luminance = (double)_iconLuminance.GetValue(image, _ => ColorTools.VisibleLuminance(bitmap) ?? -1.0);
+        return luminance >= 0 && Math.Abs(luminance - ColorTools.Luminance(ink.Color)) > 0.6;
     }
 
     /// <summary>Shares the room left after the clock and weather between the messages; longer ones end in "…".</summary>

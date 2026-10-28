@@ -22,6 +22,34 @@ public static class ColorTools
         return FromHsl(h, Math.Clamp(s, 0.35, 0.9), Math.Clamp(l, 0.55, 0.72));
     }
 
+    /// <summary>Relative luminance (0 black … 1 white), sRGB-weighted.</summary>
+    public static double Luminance(Color c) => (0.2126 * c.R + 0.7152 * c.G + 0.0722 * c.B) / 255;
+
+    /// <summary>Average luminance of an image's visible pixels (alpha-weighted); null when it's almost all transparent.</summary>
+    public static double? VisibleLuminance(BitmapSource source)
+    {
+        try
+        {
+            var bgra = new FormatConvertedBitmap(source, PixelFormats.Bgra32, null, 0);
+            int w = bgra.PixelWidth, h = bgra.PixelHeight;
+            var pixels = new byte[w * h * 4];
+            bgra.CopyPixels(pixels, w * 4, 0);
+            double sum = 0, weight = 0;
+            for (var i = 0; i < pixels.Length; i += 4)
+            {
+                var a = pixels[i + 3] / 255.0;
+                if (a <= 0.05) continue;
+                sum += a * Luminance(Color.FromRgb(pixels[i + 2], pixels[i + 1], pixels[i]));
+                weight += a;
+            }
+            return weight < w * h * 0.02 ? null : sum / weight;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
+
     public static Color Mix(Color a, Color b, double amount) => Color.FromRgb(
         (byte)Math.Round(a.R + (b.R - a.R) * amount),
         (byte)Math.Round(a.G + (b.G - a.G) * amount),
