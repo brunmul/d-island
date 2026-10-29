@@ -676,5 +676,16 @@
              privacy dot. Outside ContentLayer's clip; positioned in ApplyGeometry. -->
         <Ellipse x:Name="PrivacyDot" Width="7" Height="7" HorizontalAlignment="Left" VerticalAlignment="Top"
                  IsHitTestVisible="False" Visibility="Collapsed" />
+
+        <!-- Move handle: shows under the hovered island and drags it along the top edge (Settings >
+             Position). Surface set in ApplyTheme; positioned in ApplyGeometry. -->
+        <Border x:Name="MoveHandle" Width="44" Height="18" CornerRadius="9" HorizontalAlignment="Left"
+                VerticalAlignment="Top" BorderThickness="1" BorderBrush="{DynamicResource Separator}"
+                Background="#F00B0B0C" Cursor="SizeWE" Visibility="Collapsed" ToolTip="Drag to move the island"
+                MouseLeftButtonDown="OnMoveHandleMouseDown" MouseMove="OnMoveHandleMouseMove"
+                MouseLeftButtonUp="OnMoveHandleMouseUp" LostMouseCapture="OnMoveHandleLostMouseCapture">
+            <TextBlock Style="{StaticResource Glyph}" Text="&#xE76F;" FontSize="12"
+                       Foreground="{DynamicResource Secondary}" />
+        </Border>
     </Grid>
 </Window>

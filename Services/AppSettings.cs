@@ -172,6 +172,12 @@ public sealed class AppSettings
     /// <summary>Extra distance from the top of the screen, in DIPs (e.g. for a top-docked taskbar).</summary>
     public double TopOffset { get; set; }
 
+    /// <summary>Where the island sits along the top edge: 0 = far left, 0.5 = centered, 1 = far right.</summary>
+    public double HorizontalPosition { get; set; } = 0.5;
+
+    /// <summary>A handle under the hovered island drags it along the top edge.</summary>
+    public bool ShowMoveHandle { get; set; } = true;
+
     public bool HideVolumeFlyout { get; set; }
 
     /// <summary>System-wide shortcut that hides / shows the island, e.g. "Ctrl+Alt+I"; empty = none.</summary>
@@ -347,6 +353,8 @@ public sealed class AppSettings
         OsdSeconds = d.OsdSeconds;
         AlertSeconds = d.AlertSeconds;
         TopOffset = d.TopOffset;
+        HorizontalPosition = d.HorizontalPosition;
+        ShowMoveHandle = d.ShowMoveHandle;
         QuickAppIconSize = d.QuickAppIconSize;
         PageNavigation = d.PageNavigation;
     }

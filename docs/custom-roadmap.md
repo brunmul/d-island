@@ -97,6 +97,21 @@ redistribution, y compris commerciale, à ces conditions :
   typo 13 px ne sont pas transposés ; décision de Bruno : garder les formes actuelles avec la palette
   Arcos.
 
+### Fait le 29 octobre : déplacer l'îlot le long du haut de l'écran
+
+- Demande de Bruno : un bouton au survol pour glisser l'îlot librement à l'horizontale, en haut de l'écran.
+- Poignée `MoveHandle` (`MainWindow.xaml`) : petite pilule 44 × 18 sous l'îlot, même surface que la
+  bulle de 2e activité (`ApplyTheme`), contour 1 px `Separator`, glyphe Segoe `E76F` (pas d'équivalent
+  dans le pack Notion local), curseur ↔. Visible tant que le pointeur est sur l'îlot, replié ou déplié
+  (`UpdateMoveHandle`) ; placée dans `ApplyGeometry`, dans les 30 unités libres sous la pilule.
+- Glisser (région `moving along the top edge`) : capture souris, `GetCursorPos` converti en DIP, Y fixe,
+  fenêtre gardée entière sur l'écran principal (l'îlot déplié tient toujours), aimant de 12 DIP vers le
+  centre. Le clic sur la poignée n'ouvre ni ne ferme l'îlot ; l'îlot déplié ne se replie pas quand on
+  va chercher la poignée (`IsCursorOverPill`).
+- Réglages : `HorizontalPosition` (0 gauche, 0,5 centre, 1 droite, relatif donc stable si la
+  résolution ou la taille change) enregistré au lâcher ; Settings > Position : curseur « Horizontal
+  position » et case « Show a handle… » (`ShowMoveHandle`).
+
 ### Où sont les couleurs, formes et matériaux aujourd'hui
 
 - **Réglages** (`Services/AppSettings.cs`) : bloc `shape & material` (l. 70-105 : `Mode`, `Material`,
