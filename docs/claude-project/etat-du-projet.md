@@ -1,4 +1,4 @@
-# Atoll : état du projet au 28 octobre 2026
+# Atoll : état du projet au 29 octobre 2026
 
 Fichier de connaissance pour le projet claude.ai. Complément de `custom-roadmap.md` (feuille de route détaillée) et de `CLAUDE.md` (manuel du développeur, en anglais, hérité de D-Island avec une section Atoll en tête).
 
@@ -23,9 +23,12 @@ Atoll est le fork personnel de D-Island 1.2.1 par Bruno Muller : même îlot dyn
 7. Notifications épinglées par app (PR #1, fusionnée le 28/10) : dans l'îlot au repos, après l'heure et la météo, la dernière notification de chaque app choisie (3 max, Settings > Notifications), tronquée avec « … », jusqu'à la suivante de la même app. Mémoire seulement ; « Clear all » les efface.
 8. `5d232e1`–`8a8a4fa` Icônes des onglets de l'îlot et engrenage des Réglages tirés du pack Notion · pages, lues à l'exécution dans `icons\notion\` (dossier ignoré par git, car les icônes appartiennent à Notion) ; repli sur les glyphes Segoe si un fichier manque.
 
+9. Fond pochette retiré (29/10) : plus de vignette de musique ou vidéo en fond de l'îlot déplié (illisible) ; fond du thème seul, pochettes dans leurs carrés, réglage « Show album art banner » supprimé.
+
 ## Décisions prises
 
 - Garder les formes actuelles de l'îlot ; la palette Arcos suffit comme nouveau visuel.
+- Pas de fond tiré de la pochette derrière l'îlot (29/10) : le fond reste celui du thème.
 - Nom « Atoll » et icône : provisoires, à confirmer.
 - Mode sombre / clair de la fenêtre Réglages choisi d'après la clarté de l'encre du thème, pas d'après Windows.
 - Les icônes Notion ne vont jamais dans le dépôt : elles restent dans `icons\notion\` en local (source : artefact « Bibliothèque d'icônes », https://claude.ai/artifact/PB8j7HM1LuBUhJWgJyg9oG).

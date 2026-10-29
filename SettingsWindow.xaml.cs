@@ -159,10 +159,9 @@ public partial class SettingsWindow : Window
         Slider(animation, "Bounciness", 0, 1, 0.05, () => s.Bounciness, v => s.Bounciness = v, v => $"{v * 100:0}%");
 
         var media = Section("MEDIA");
-        Check(media, "Show album art banner when expanded", () => s.ShowArtBanner, v => s.ShowArtBanner = v);
         Check(media, "Animated album art from Apple Music", () => s.MotionArtwork, v => s.MotionArtwork = v);
         Note(media,
-            "Plays an album's looping motion artwork, when it has one, in the banner while expanded (works for " +
+            "Plays an album's looping motion artwork, when it has one, in the large artwork square while expanded (works for " +
             "Spotify too if the album is on Apple Music). Uses Apple's unofficial web-player access, the same as " +
             "open-source downloaders, so it may stop working if Apple changes it. Each album is fetched once and " +
             "cached (up to 200 MB).");

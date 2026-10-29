@@ -89,6 +89,10 @@ redistribution, y compris commerciale, à ces conditions :
   `Ink` (onglet actif) ou `Secondary` ; l'engrenage des Réglages prend `gear`. `Services/IconPack.cs` lit `icons\notion\*.svg` à côté de
   l'exe ; le dossier est ignoré par git (icônes propriétaires de Notion) et copié au build s'il
   existe ; sans lui, les glyphes Segoe reviennent.
+- **Fond pochette retiré (29/10)** : l'îlot déplié ne met plus la vignette de la musique ou de la vidéo
+  en fond derrière la section média (le texte devenait illisible) ; il garde le fond du thème. Les
+  pochettes restent dans leurs carrés, et la pochette animée Apple Music joue dans le grand carré
+  (lecteur caché `MotionHost`). Le réglage « Show album art banner » a disparu.
 - **Reste à faire** : les icônes météo gardent leurs couleurs ; le relief Arcos des cases teintées et la
   typo 13 px ne sont pas transposés ; décision de Bruno : garder les formes actuelles avec la palette
   Arcos.

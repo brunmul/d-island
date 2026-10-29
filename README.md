@@ -122,8 +122,9 @@ Apple Music, browsers and Media Player. It shows the title, artist, album, artwo
 in its accent color, and a progress bar you can click to seek when the app supports it. When several
 apps have sessions, the one that is actually playing wins.
 
-Artwork comes from the session thumbnail. It is shown as a banner behind the expanded media view and
-animates when the app supplies an animated GIF.
+Artwork comes from the session thumbnail. It is shown in the artwork squares only (this version has no
+banner behind the expanded media view, which made the text hard to read) and animates when the app
+supplies an animated GIF.
 
 ### Animated album art (Apple Music motion artwork)
 
@@ -143,7 +144,7 @@ apps, so this uses the same unofficial route as open-source downloaders:
 5. **Convert:** Windows' built-in, hardware-accelerated transcoder converts it once into a regular
    15 fps MP4. WPF's player won't play the fragmented original, and 15 fps measured about 17% of a
    core while playing, against about 27% at 24 fps.
-6. **Play:** the loop plays muted in the banner and the large artwork square, only while the island is
+6. **Play:** the loop plays muted in the large artwork square, only while the island is
    expanded.
 
 Every result is cached in `%LocalAppData%\DIsland\MotionArt`, up to 200 MB. "No motion artwork" is
@@ -263,8 +264,7 @@ Settings are stored in `%AppData%\DIsland\settings.json` and can be edited in th
 | Interaction | Expand on hover | on (clicking always works) |
 | | Hover delay / collapse delay | 120 ms / 250 ms |
 | Animation | Speed / bounciness | 1.0× / 35% |
-| Media | Album art banner | on |
-| | Animated album art from Apple Music | off (unofficial; see above) |
+| Media | Animated album art from Apple Music | off (unofficial; see above) |
 | Wallpaper Engine | Wallpaper controls / mute while music plays | on / off |
 | Expanded island | Navigation: tabs or page dots | Tabs |
 | | Mic / camera indicator | on |

@@ -149,8 +149,6 @@ public sealed class AppSettings
     public double Bounciness { get; set; } = 0.35;
 
     // ---- media & Wallpaper Engine
-    public bool ShowArtBanner { get; set; } = true;
-
     /// <summary>
     /// Fetch Apple Music motion artwork (looping album videos) for the playing album, from any player.
     /// Opt-in: uses Apple's unofficial web-player token and private catalog endpoint.
@@ -345,7 +343,6 @@ public sealed class AppSettings
         CollapseDelayMs = d.CollapseDelayMs;
         AnimationSpeed = d.AnimationSpeed;
         Bounciness = d.Bounciness;
-        ShowArtBanner = d.ShowArtBanner;
         WallpaperEngineControls = d.WallpaperEngineControls;
         OsdSeconds = d.OsdSeconds;
         AlertSeconds = d.AlertSeconds;

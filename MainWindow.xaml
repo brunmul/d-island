@@ -258,17 +258,10 @@
 
             <!-- Expanded -->
             <Grid x:Name="ExpandedView" Style="{StaticResource IslandView}" Width="420">
-                <!-- Album art banner behind the media section, fading into the island. Brush set in code.
-                     MotionBanner plays Apple Music motion artwork over it when available. -->
-                <Border x:Name="ArtBanner" VerticalAlignment="Top" Height="160" Opacity="0.55"
-                        Visibility="Collapsed" IsHitTestVisible="False" ClipToBounds="True">
-                    <Border.OpacityMask>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#FF000000" Offset="0" />
-                            <GradientStop Color="#80000000" Offset="0.5" />
-                            <GradientStop Color="#00000000" Offset="1" />
-                        </LinearGradientBrush>
-                    </Border.OpacityMask>
+                <!-- Apple Music motion artwork plays here, out of sight; the large artwork square shows it
+                     through a VisualBrush. (No album-art banner behind the island: it made the text unreadable.) -->
+                <Border x:Name="MotionHost" Width="64" Height="64" Opacity="0" IsHitTestVisible="False"
+                        HorizontalAlignment="Left" VerticalAlignment="Top">
                     <MediaElement x:Name="MotionBanner" Stretch="UniformToFill" IsMuted="True" Volume="0"
                                   LoadedBehavior="Manual" UnloadedBehavior="Manual" ScrubbingEnabled="False"
                                   Visibility="Collapsed" />
