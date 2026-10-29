@@ -510,9 +510,8 @@ public partial class MainWindow : Window
         }
         if (Environment.GetEnvironmentVariable("DISLAND_MOTION_PLAY") is { Length: > 0 } motionFile)
         {
-            // Debug aid: play a cached motion-art file in the expanded island's banner.
+            // Debug aid: play a cached motion-art file in the expanded island's artwork square.
             _leavePoll.Tick += (_, _) => _msOutside = 0;
-            _debugForceBanner = true;
             SetExpanded(true);
             MotionBanner.Source = new Uri(motionFile);
             MotionBanner.Play();
@@ -741,8 +740,6 @@ public partial class MainWindow : Window
     }
 
 #if DEBUG
-    private bool _debugForceBanner;
-
     /// <summary>
     /// Debug aid: renders the island's own visual tree to a PNG. Liquid Glass excludes the window from
     /// screen capture, so ordinary screenshots can't show it.
@@ -891,13 +888,6 @@ public partial class MainWindow : Window
         MediaSection.Visibility = media is not null ? Visibility.Visible : Visibility.Collapsed;
         if (!AvailablePages().Contains(_page)) ShowPage(ExpandedPage.Home, animate: false);
         UpdatePageVisibility();
-        ArtBanner.Visibility = _page == ExpandedPage.Home && _settings.ShowArtBanner && media is not null
-                               && (media.Art is not null || _motionReady)
-            ? Visibility.Visible
-            : Visibility.Collapsed;
-#if DEBUG
-        if (_debugForceBanner) ArtBanner.Visibility = Visibility.Visible;
-#endif
         ClockSection.Visibility = media is null ? Visibility.Visible : Visibility.Collapsed;
         ProgressRow.Visibility = media is { Duration.Ticks: > 0 } ? Visibility.Visible : Visibility.Collapsed;
         TimerPresets.Visibility = _timer.IsActive ? Visibility.Collapsed : Visibility.Visible;
@@ -1148,7 +1138,7 @@ public partial class MainWindow : Window
         SuspendTextShadow();
         UpdateWallpaperThumb();
         UpdateMotionPlayback();
-        if (_state.IsExpanded) Render(); // new height and banner
+        if (_state.IsExpanded) Render(); // new height
         else UpdatePageVisibility();
     }
 
@@ -3827,7 +3817,6 @@ public partial class MainWindow : Window
                 _shownArt = media.Art;
                 SetArt(MediaArtSmall, MediaArtSmallFallback, media.Art);
                 SetArt(MediaArtLarge, MediaArtLargeFallback, media.Art);
-                ArtBanner.Background = media.Art?.CreateBrush();
             }
             PlayPauseGlyph.Text = media.IsPlaying ? "" : "";
             PrevButton.IsEnabled = media.CanPrevious;
@@ -4010,7 +3999,6 @@ public partial class MainWindow : Window
             // The large artwork square mirrors the same video (no second decoder).
             MediaArtLarge.Background = new VisualBrush(MotionBanner) { Stretch = Stretch.UniformToFill };
             MediaArtLargeFallback.Visibility = Visibility.Collapsed;
-            if (_state.IsExpanded) Render(); // the banner may have just become visible
             UpdateMotionPlayback();
         };
         MotionBanner.MediaEnded += (_, _) =>
@@ -4064,7 +4052,7 @@ public partial class MainWindow : Window
     private void UpdateMotionPlayback()
     {
         if (!_motionReady) return;
-        if (_state.IsExpanded && ArtBanner.Visibility == Visibility.Visible) MotionBanner.Play();
+        if (_state.IsExpanded && _page == ExpandedPage.Home && _media.Current is not null) MotionBanner.Play();
         else MotionBanner.Pause();
     }
 
