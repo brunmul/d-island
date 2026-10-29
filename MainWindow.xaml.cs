@@ -269,6 +269,7 @@ public partial class MainWindow : Window
             _state.DismissTransient();
             IslandHidden = true; // Render() is skipped from here on
             Root.IsHitTestVisible = false;
+            UpdateMoveHandle();
             UpdateEqualizer(); // stops the bars' meter loop while nothing can be seen
             if (!IsVisible)
             {
@@ -423,6 +424,7 @@ public partial class MainWindow : Window
         UpdateMotionArtwork(_media.Current);
 
         Reposition();
+        UpdateMoveHandle();
         if (IsLoaded) Render();
         ApplyGeometry();
     }
@@ -839,9 +841,74 @@ public partial class MainWindow : Window
 
     private void Reposition()
     {
-        Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
+        if (_moving) return; // the drag owns Left until the button is released
+        Left = MovableWidth * Math.Clamp(_settings.HorizontalPosition, 0, 1);
         Top = _settings.TopOffset;
     }
+
+    // ---------------------------------------------------------------- moving along the top edge
+
+    // The window stays whole on the primary screen, so the expanded island (almost as wide as the
+    // window) always fits; the drag maps Left onto HorizontalPosition (0 left … 0.5 centered … 1 right).
+    private const double MoveSnapDistance = 12;
+    private double MovableWidth => Math.Max(0, SystemParameters.PrimaryScreenWidth - Width);
+
+    private bool _moving;
+    private double _moveStartLeft;
+    private int _moveStartCursorX;
+
+    /// <summary>The handle shows under the island while the pointer is over it (or while dragging).</summary>
+    private void UpdateMoveHandle()
+    {
+        var show = _moving || (_settings.ShowMoveHandle && !IslandHidden && Root.IsMouseOver);
+        var visible = MoveHandle.Visibility == Visibility.Visible;
+        if (show == visible) return;
+        MoveHandle.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        if (show) MoveHandle.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(150)));
+    }
+
+    private void OnMoveHandleMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true; // not a click on the island: no expand / collapse
+        if (!NativeMethods.GetCursorPos(out var pt)) return;
+        _hoverTimer.Stop();
+        _hoverSuppressed = true; // a drag that starts collapsed doesn't open the island under the pointer
+        _moving = true;
+        _moveStartLeft = Left;
+        _moveStartCursorX = pt.X;
+        MoveHandle.CaptureMouse();
+    }
+
+    private void OnMoveHandleMouseMove(object sender, MouseEventArgs e)
+    {
+        if (!_moving || !NativeMethods.GetCursorPos(out var pt)) return;
+        // Screen pixels to DIPs: Left is in DIPs, the cursor in physical pixels.
+        var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
+        var left = Math.Clamp(_moveStartLeft + (pt.X - _moveStartCursorX) / dpi, 0, MovableWidth);
+        var center = MovableWidth / 2;
+        if (Math.Abs(left - center) < MoveSnapDistance) left = center; // a light pull back to the middle
+        Left = left;
+    }
+
+    private void OnMoveHandleMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        MoveHandle.ReleaseMouseCapture(); // ends the drag through LostMouseCapture
+    }
+
+    private void OnMoveHandleLostMouseCapture(object sender, MouseEventArgs e)
+    {
+        if (!_moving) return;
+        _moving = false;
+        _settings.HorizontalPosition = MovableWidth > 0 ? Math.Clamp(Left / MovableWidth, 0, 1) : 0.5;
+        _settings.Save();
+        UpdateMoveHandle();
+    }
+
+    private bool IsCursorOverMoveHandle(Point p) =>
+        MoveHandle.Visibility == Visibility.Visible
+        && p.X >= MoveHandle.Margin.Left && p.X <= MoveHandle.Margin.Left + MoveHandle.Width
+        && p.Y >= MoveHandle.Margin.Top - MoveHandleGap && p.Y <= MoveHandle.Margin.Top + MoveHandle.Height;
 
     // ---------------------------------------------------------------- rendering
 
@@ -1406,7 +1473,12 @@ public partial class MainWindow : Window
         }
         if (PrivacyDot.Visibility == Visibility.Visible)
             PrivacyDot.Margin = new Thickness(right + 7, PillTop + h / 2 - PrivacyDot.Height / 2, 0, 0);
+
+        // The move handle hangs just under the pill, inside the window's 30-unit room below it.
+        MoveHandle.Margin = new Thickness((BaseWidth - MoveHandle.Width) / 2, PillTop + h + MoveHandleGap, 0, 0);
     }
+
+    private const double MoveHandleGap = 6;
 
     // ---------------------------------------------------------------- mic / camera in use
 
@@ -1972,6 +2044,7 @@ public partial class MainWindow : Window
         var bubbleBrush = new SolidColorBrush(Color.FromArgb(0xF0, baseColor.R, baseColor.G, baseColor.B));
         bubbleBrush.Freeze();
         ActivityBubbleBack.Fill = bubbleBrush; // the second-activity bubble wears the same surface
+        MoveHandle.Background = bubbleBrush; // and so does the move handle
         var materialAlpha = _settings.Material switch
         {
             IslandMaterial.Translucent => Math.Clamp(_settings.BackgroundOpacity, 0.15, 1),
@@ -2064,12 +2137,15 @@ public partial class MainWindow : Window
 
     private void OnRootMouseEnter(object sender, MouseEventArgs e)
     {
-        if (AlertIsClickable) return;
+        UpdateMoveHandle();
+        if (AlertIsClickable || _moving) return;
         if (_settings.ExpandOnHover && !_state.IsExpanded && !_hoverSuppressed) _hoverTimer.Start();
     }
 
     private void OnRootMouseLeave(object sender, MouseEventArgs e)
     {
+        UpdateMoveHandle();
+        if (_moving) return;
         _hoverTimer.Stop();
         _hoverSuppressed = false;
     }
@@ -2190,6 +2266,7 @@ public partial class MainWindow : Window
         var w = _width.Target;
         var x = (BaseWidth - w) / 2;
         const double slop = 6;
+        if (_moving || IsCursorOverMoveHandle(p)) return true; // reaching for the handle under it
         return p.X >= x - slop && p.X <= x + w + slop && p.Y >= 0 && p.Y <= PillTop + _height.Target + slop;
     }
 

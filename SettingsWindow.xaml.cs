@@ -256,6 +256,10 @@ public partial class SettingsWindow : Window
 
         var position = Section("POSITION");
         Slider(position, "Top offset", 0, 120, 1, () => s.TopOffset, v => s.TopOffset = v, v => $"{v:0} px");
+        Slider(position, "Horizontal position", 0, 100, 1, () => Math.Round(s.HorizontalPosition * 100),
+            v => s.HorizontalPosition = v / 100, v => v == 50 ? "Center" : $"{v:0} %");
+        Check(position, "Show a handle under the island to drag it along the top of the screen",
+            () => s.ShowMoveHandle, v => s.ShowMoveHandle = v);
 
         var system = Section("SYSTEM");
         HotkeyRow(system);
